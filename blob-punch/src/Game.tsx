@@ -1,6 +1,10 @@
 import React, {Component} from 'react';
+import { ControllerInterface } from './Controller';
 
-type GameProps = {}
+type GameProps = {
+	entities: any,
+	controllers: ControllerInterface[],
+}
 type GameState = {
 
 }
@@ -29,8 +33,6 @@ export class Game extends Component<GameProps, GameState> {
 	   	</div>
     	);
     }
-    
-    
 }
 
 export default Game;

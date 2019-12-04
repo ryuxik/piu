@@ -5,7 +5,9 @@ import Game from './Game';
 const App: React.FC = () => {
   return (
     <div className="App">
-      <Game/>
+      <Game
+        entities={[]}
+        controllers={[]}/>
     </div>
   );
 }
