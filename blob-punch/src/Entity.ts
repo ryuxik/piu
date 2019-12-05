@@ -27,6 +27,10 @@ export interface EntityWeaponInterface {
 	tick(): void;
 }
 
+export interface EntityInfoRendererInterface {
+	draw(canvas: HTMLCanvasElement): void;
+}
+
 export interface EntityRendererInterface {
 	draw(canvas: HTMLCanvasElement): void;
 }
