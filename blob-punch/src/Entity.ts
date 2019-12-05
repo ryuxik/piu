@@ -1,5 +1,7 @@
 import { Direction, Action } from './CommonEnums';
 
+// Entity Types
+
 export interface EntityInterface {
 	getFitness(): number;
 	setOponent(opponent: EntityInterface): void;
@@ -36,16 +38,21 @@ export interface EntityWeaponInterface {
 	tick(): void;
 }
 
-export interface EntityInfoRendererInterface {
+export interface ProjectileInterface {
+	setEntityManager(entityManager: EntityManagerInterface): void;
+	updatePosition(): void;
+}
+
+// Renderers
+
+export interface RendererInterface {
 	draw(canvas: HTMLCanvasElement): void;
 }
 
-export interface EntityRendererInterface {
-	draw(canvas: HTMLCanvasElement): void;
-}
+// Constructors
 
-export interface EntityWeaponRendererInterface {
-	draw(canvas: HTMLCanvasElement): void;
+export interface ProjectileConstructor {
+	new (x: number, y: number, direction: Direction, opponent: EntityInterface): ProjectileInterface;
 }
 
 export interface EntityConstructor {
@@ -54,6 +61,12 @@ export interface EntityConstructor {
 
 export interface EntityWeaponConstructor {
 	new (): EntityWeaponInterface;
+}
+
+// Factories
+
+export function createProjectile(ctor: ProjectileConstructor, x: number, y: number, direction: Direction, opponent: EntityInterface): ProjectileInterface {
+	return new ctor(x, y, direction, opponent);
 }
 
 export function createEntity(ctor: EntityConstructor, name: string, color: number[], entityNumber: number): EntityInterface {
