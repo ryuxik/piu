@@ -24,6 +24,13 @@ export interface EntityInterface {
 	setEntityManager(entityManager: any): void;
 }
 
+export interface EntityManagerInterface {
+	removeEntity(entity: EntityInterface): void;
+	addEntity(entity: EntityInterface): void;
+	updateEntityPositions(): void;
+	drawEntities(canvas: HTMLCanvasElement): void;
+}
+
 export interface EntityWeaponInterface {
 	attack(): void;
 	tick(): void;
