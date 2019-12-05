@@ -1,3 +1,5 @@
+import { Direction, Action } from './CommonEnums';
+
 export interface EntityInterface {
 	getFitness(): number;
 	setOponent(opponent: EntityInterface): void;
@@ -6,16 +8,16 @@ export interface EntityInterface {
 	block(): void;
 	releaseBlock(): void;
 	jump(): void;
-	takeKnockback(direction: any, damage: any): void;
-	takePunch(direction: any): void;
-	takePiu(direction: any): void;
-	takeDamage(damage: any): void;
+	takeKnockback(direction: Direction, damage: number): void;
+	takePunch(direction: Direction): void;
+	takePiu(direction: Direction): void;
+	takeDamage(damage: number): void;
 	attack(): void;
 	altAttack(): void;
 	chargeMana(): void;
 	addMana(): void;
-	takeAction(action: any): void;
-	takeDirection(direction: any): void;
+	takeAction(action: Action): void;
+	takeDirection(direction: Direction): void;
 	getCommandedXVel(): number;
 	respawn(): void;
 	updatePosition(): void;
@@ -40,14 +42,14 @@ export interface EntityWeaponRendererInterface {
 }
 
 export interface EntityConstructor {
-	new (name: string, color: any, entityNumber: number) : EntityInterface;
+	new (name: string, color: number[], entityNumber: number) : EntityInterface;
 }
 
 export interface EntityWeaponConstructor {
 	new (): EntityWeaponInterface;
 }
 
-export function createEntity(ctor: EntityConstructor, name: string, color: any, entityNumber: number): EntityInterface {
+export function createEntity(ctor: EntityConstructor, name: string, color: number[], entityNumber: number): EntityInterface {
 	return new ctor(name, color, entityNumber);
 }
 

@@ -1,3 +1,5 @@
+import { EntityInterface } from './Entity';
+
 export interface KeyBindings {
 	left: number;
 	right: number;
@@ -9,11 +11,11 @@ export interface KeyBindings {
 }
 
 export interface ControllerConstructor {
-	new (entity: any, keyBindings: KeyBindings): ControllerInterface;
+	new (entity: EntityInterface, keyBindings: KeyBindings): ControllerInterface;
 }
 
 export interface ControllerInterface {
-	figureDirection(entity: any): void;
+	figureDirection(entity: EntityInterface): void;
 	moveLeft(): void;
 	moveRight(): void;
 	stopLeft(): void;
@@ -30,6 +32,6 @@ export interface ControllerInterface {
 	keyReleased(keyCode: number): void;
 }
 
-export function createController(ctor: ControllerConstructor, entity: any, keyBindings: KeyBindings): ControllerInterface {
+export function createController(ctor: ControllerConstructor, entity: EntityInterface, keyBindings: KeyBindings): ControllerInterface {
 	return new ctor(entity, keyBindings);
 }
