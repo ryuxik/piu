@@ -1,63 +1,79 @@
 import { EntityInterface, EntityManagerInterface, ProjectileInterface, RendererInterface } from './Entity';
 import { Direction } from './CommonEnums';
-import { PlayerLogic } from './Constants';
+import { PlayerLogic, PlayerRender } from './Constants';
+import { RectangleInterface, Coordinate2DInterface, Vector2DInterface, MoveRectangle, CollisionRectRect } from './Physics';
+import { getRGBString } from './ColorUtil';
 
-type BaseProjectileProps {
-	x: number,
-	y: number,
-	direction: Direction,
-	opponent: EntityInterface
-}
-
-type BaseProjectileState {
-	x: number,
-	y: number,
-	vx: number,
-	connectionMade: boolean,
-}
-
+// TODO: clean up magic numbers
 export class BaseProjectile implements ProjectileInterface, RendererInterface {
-	private _x : number;
-	private _y : number;
-	private _vx : number;
-	private _opponent: EntityInterface;
-	private _connectionMade: boolean;
-	private _entityManager: EntityManagerInterface;
+	private velocityVector : Vector2DInterface;
+	private opponent: EntityInterface;
+	private connectionMade: boolean;
+	public entityManager: EntityManagerInterface;
+	public rectangle : RectangleInterface;
 
-	constructor(x: number, y: number, direction: Direction, opponent: EntityInterface) {
-		this._x = x;
-		this._y = y;
-		this._vx = direction == Direction.RIGHT ? PlayerLogic.PROJECTILE_VEL_X: -PlayerLogic.PROJECTILE_VEL_X;
-		this._opponent = opponent;
-		this._connectionMade = false;
+	constructor(bottomLeft: Coordinate2DInterface , direction: Direction, opponent: EntityInterface, entityManager: EntityManagerInterface) {
+		this.rectangle = this.initRectangle(bottomLeft);
+		this.velocityVector = this.initVelocityVector(direction);
+		this.opponent = opponent;
+		this.connectionMade = false;
+		this.entityManager = entityManager;
 	}
 
-	public setEntityManager(entityManager: EntityManagerInterface) {
-		this._entityManager = entityManager;
+	private initRectangle(bottomLeft: Coordinate2DInterface) {
+		return {
+			bottomLeft: {
+				x: bottomLeft.x,
+				y: bottomLeft.y
+			},
+			bottomRight: {
+				x: bottomLeft.x + PlayerLogic.PROJECTILE_WIDTH,
+				y: bottomLeft.y,
+			},
+			topLeft: {
+				x: bottomLeft.x,
+				y: bottomLeft.y + PlayerLogic.PROJECTILE_HEIGHT,
+			},
+			topRight: {
+				x: bottomLeft.x + PlayerLogic.PROJECTILE_WIDTH,
+				y: bottomLeft.y + PlayerLogic.PROJECTILE_HEIGHT,
+			},
+		};
+	}
+
+	private initVelocityVector(direction: Direction): Vector2DInterface {
+		return {
+			vx: direction == Direction.RIGHT ? PlayerLogic.PROJECTILE_VEL_X: -PlayerLogic.PROJECTILE_VEL_X,
+			vy: 0,
+		};
 	}
 
 	public updatePosition() {
-		this._x += this._vx;
-        if (this._x < -10 || this._x > 10 - PlayerLogic.PROJECTILE_WIDTH) {
-            // remove
-            this._entityManager.removeEntity(this);
+		this.rectangle = MoveRectangle(this.rectangle, this.velocityVector);
+        if ( this.rectangle.bottomLeft.x < -10 || this.rectangle.bottomRight.x > 10 ) {
+        	// Went off stage?
+            this.entityManager.removeEntity(this);
         }
 
         // collision detection
-        if (!this._connectionMade) {
-            if(collideRectRect(this._x, 
-                (this._vx < 0 ? this._y - PlayerLogic.PROJECTILE_WIDTH: this._y),
-                PlayerLogic.PROJECTILE_WIDTH,
-                PlayerLogic.PROJECTILE_HEIGHT,
-                this._opponent.position_x, this._opponent.position_y - this._opponent.height, this._opponent.width, this._opponent.height)) {
-                this._opponent.takePiu((this._vx < 0 ? Direction.LEFT : Direction.RIGHT));
-                this._connectionMade = true;
-                this._entityManager.removeEntity(this);
+        if (!this.connectionMade) {
+            if (CollisionRectRect(this.rectangle, this.opponent.rectangle)) {
+                this.opponent.takePiu((this.velocityVector.vx < 0 ? Direction.LEFT : Direction.RIGHT));
+                this.connectionMade = true;
+                this.entityManager.removeEntity(this);
             }
         }
 	}
 
-	public draw() {
-		
+	public getBaseColor(): readonly number[] {
+		return PlayerRender.PROJECTILE_COLOR;
+	}
+
+	public draw(canvas: HTMLCanvasElement) {
+		let context = canvas.getContext('2d');
+		if (context) {
+			context.fillStyle = getRGBString(this.getBaseColor());
+			context.fillRect(this.rectangle.topLeft.x, this.rectangle.topLeft.y, PlayerLogic.PROJECTILE_WIDTH, PlayerLogic.PROJECTILE_HEIGHT);
+		}
 	}
 }

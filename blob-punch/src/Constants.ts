@@ -1,5 +1,5 @@
 // GAME LOGIC
-export const gameLogic = <const>{
+export const GameLogic = <const>{
     WIDTH: 1000,
     HEIGHT: 500,
     GRAVITY: 0.5,
@@ -16,11 +16,11 @@ export const gameLogic = <const>{
 }
 
 // PLAYER LOGIC
-export const playerLogic =  <const>{
+export const PlayerLogic =  <const>{
     MAX_X_VEL_COMMANDED: 3,
     MAX_X_VEL: 8,
     MAX_Y_VEL: 10,
-    JUMP_VEL: -10,
+    JUMP_VEL_Y: -10,
     ATTACK_DAMAGE: 12,
     ALT_ATTACK_DAMAGE: 6,
     ALT_ATTACK_COST: 10,
@@ -32,8 +32,8 @@ export const playerLogic =  <const>{
     STARTING_LIVES: 3,
     PLAYER_WIDTH: 20,
     PLAYER_HEIGHT: 30,
-    STARTING_POS_X: gameLogic.WIDTH/2,
-    STARTING_POS_Y: gameLogic.HEIGHT/2,
+    STARTING_POS_X: GameLogic.WIDTH/2,
+    STARTING_POS_Y: GameLogic.HEIGHT/2,
     STARTING_VEL_X: 0,
     STARTING_VEL_Y: 0,
     KNOCKBACK_VEL_X: 5,
@@ -51,7 +51,7 @@ export const playerLogic =  <const>{
 }
 
 // PLAYER RENDER
-export const playerRender = <const>{
+export const PlayerRender = <const>{
     COLOR: [197, 254, 0],
     ALT_COLOR: [254, 176, 41],
     CHARGING_COLOR: [1, 254, 254],
@@ -65,17 +65,17 @@ export const playerRender = <const>{
 }
 
 //PLAYER INFO RENDER
-export const playerInfoRender = <const>{
+export const PlayerInfoRender = <const>{
     INFO_CONTAINER_COLOR: [220, 220, 220],
-    INFO_CONTAINER_LEFT_POS_X: gameLogic.WIDTH/2 - 200,
-    INFO_CONTAINER_RIGHT_POS_X: gameLogic.WIDTH/2 + 100,
-    INFO_CONTAINER_POS_Y: gameLogic.WIDTH/2 + 100,
+    INFO_CONTAINER_LEFT_POS_X: GameLogic.WIDTH/2 - 200,
+    INFO_CONTAINER_RIGHT_POS_X: GameLogic.WIDTH/2 + 100,
+    INFO_CONTAINER_POS_Y: GameLogic.WIDTH/2 + 100,
     INFO_BORDER_X_OFFSET: 10,
     INFO_BORDER_Y_OFFSET: 15,
     INFO_BORDER_WIDTH: 125,
     INFO_BORDER_HEIGHT: 60,
     HEALTH_BAR_Y_OFFSET: 10,
-    HEALTH_BAR_WIDTH: playerLogic.MAX_HEALTH+4,
+    HEALTH_BAR_WIDTH: PlayerLogic.MAX_HEALTH+4,
     HEALTH_BAR_HEIGHT: 10,
     HEALTH_BAR_COLOR: [200,100,100],
     HEALTH_BAR_INNER_X_OFFSET: 2,
@@ -83,7 +83,7 @@ export const playerInfoRender = <const>{
     HEALTH_BAR_INNER_HEIGHT: 6,
     MANA_BAR_COLOR: [100,100,200],
     MANA_BAR_Y_OFFSET: 25,
-    MANA_BAR_WIDTH: gameLogic.MAX_MANA + 4,
+    MANA_BAR_WIDTH: GameLogic.MAX_MANA + 4,
     MANA_BAR_HEIGHT: 10,
     MANA_BAR_INNER_X_OFFSET: 2,
     MANA_BAR_INNER_Y_OFFSET: 27,
@@ -92,7 +92,7 @@ export const playerInfoRender = <const>{
 }
 
 // GAME RENDER
-export const gameRender = <const>{
+export const GameRender = <const>{
     BACKGROUND_COLOR: [200,200,200],
 }
 

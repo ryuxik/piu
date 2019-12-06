@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
 import { ControllerInterface } from './Controller';
+import { EntityInterface } from './Entity';
 
 type GameProps = {
-	entities: any,
+	entities: EntityInterface[],
 	controllers: ControllerInterface[],
 }
 type GameState = {
@@ -10,7 +11,7 @@ type GameState = {
 }
 
 export class Game extends Component<GameProps, GameState> {
-	canvasRef : React.RefObject<HTMLCanvasElement>= React.createRef<HTMLCanvasElement>();
+	private canvasRef : React.RefObject<HTMLCanvasElement>= React.createRef<HTMLCanvasElement>();
 
 	componentDidMount() {
 		this.draw();

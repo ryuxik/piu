@@ -1,12 +1,42 @@
 import { Direction, Action } from './CommonEnums';
+import { RectangleInterface, Coordinate2DInterface, Vector2DInterface } from './Physics';
 
-// Entity Types
+// Entity Roles
 
-export interface EntityInterface {
+export interface SolidInterface {
+	rectangle: RectangleInterface;
+	updatePosition(updateVector?: Vector2DInterface): void;
+}
+
+export interface ManagedInterface {
+	entityManager: EntityManagerInterface,
+}
+
+export interface EntityInformationInterface extends RendererInterface {
+	entity: EntityInterface;
+	entityNumber: number;
+}
+
+export interface EntityInterface  extends SolidInterface, ManagedInterface {
+	name: string;
+	health: number;
+	mana: number;
+	isOnstage: boolean;
+	directionMoving: Direction;
+	directionFacing: Direction;
+	numLives: number;
+	chargeCounter: number;
+	isCharging: boolean;
+	isBlocking: boolean;
+	knockbackTicks: number;
+	numTicksAlive: number;
+	isAlive: boolean;
+	numTicksInactive: number;
+	opponent?: EntityInterface;
 	getFitness(): number;
-	setOponent(opponent: EntityInterface): void;
+	registerOponent(opponent: EntityInterface): void;
 	resetManaCounter(): void;
-	setOnstage(): void;
+	setOnstage(isOnstage: boolean): void;
 	block(): void;
 	releaseBlock(): void;
 	jump(): void;
@@ -22,57 +52,53 @@ export interface EntityInterface {
 	takeDirection(direction: Direction): void;
 	getCommandedXVel(): number;
 	respawn(): void;
-	updatePosition(): void;
-	setEntityManager(entityManager: any): void;
 }
 
 export interface EntityManagerInterface {
-	removeEntity(entity: EntityInterface): void;
-	addEntity(entity: EntityInterface): void;
+	removeEntity(entity: EntityInterface | ProjectileInterface): void;
+	addEntity(entity: EntityInterface | ProjectileInterface): void;
 	updateEntityPositions(): void;
 	drawEntities(canvas: HTMLCanvasElement): void;
 }
 
-export interface EntityWeaponInterface {
+export interface EntityWeaponInterface extends SolidInterface {
 	attack(): void;
-	tick(): void;
 }
 
-export interface ProjectileInterface {
-	setEntityManager(entityManager: EntityManagerInterface): void;
-	updatePosition(): void;
+export interface ProjectileInterface extends SolidInterface, ManagedInterface {
 }
 
 // Renderers
 
 export interface RendererInterface {
+	getBaseColor(): readonly number[];
 	draw(canvas: HTMLCanvasElement): void;
 }
 
 // Constructors
 
 export interface ProjectileConstructor {
-	new (x: number, y: number, direction: Direction, opponent: EntityInterface): ProjectileInterface;
+	new (bottomLeft: Coordinate2DInterface, direction: Direction, opponent: EntityInterface): ProjectileInterface;
 }
 
 export interface EntityConstructor {
-	new (name: string, color: number[], entityNumber: number) : EntityInterface;
+	new (bottomLeft: Coordinate2DInterface, name: string, color: number[], entityNumber: number) : EntityInterface;
 }
 
 export interface EntityWeaponConstructor {
-	new (): EntityWeaponInterface;
+	new (bottomLeft: Coordinate2DInterface): EntityWeaponInterface;
 }
 
 // Factories
 
-export function createProjectile(ctor: ProjectileConstructor, x: number, y: number, direction: Direction, opponent: EntityInterface): ProjectileInterface {
-	return new ctor(x, y, direction, opponent);
+export function createProjectile(ctor: ProjectileConstructor, bottomLeft: Coordinate2DInterface, direction: Direction, opponent: EntityInterface): ProjectileInterface {
+	return new ctor(bottomLeft, direction, opponent);
 }
 
-export function createEntity(ctor: EntityConstructor, name: string, color: number[], entityNumber: number): EntityInterface {
-	return new ctor(name, color, entityNumber);
+export function createEntity(ctor: EntityConstructor, bottomLeft: Coordinate2DInterface, name: string, color: number[], entityNumber: number): EntityInterface {
+	return new ctor(bottomLeft, name, color, entityNumber);
 }
 
-export function createEntityWeapon(ctor: EntityWeaponConstructor): EntityWeaponInterface {
-	return new ctor();
+export function createEntityWeapon(ctor: EntityWeaponConstructor, bottomLeft: Coordinate2DInterface): EntityWeaponInterface {
+	return new ctor(bottomLeft);
 }
