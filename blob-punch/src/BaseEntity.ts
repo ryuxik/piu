@@ -1,10 +1,15 @@
-import { EntityInterface, EntityManagerInterface, RendererInterface } from './Entity';
-import { PlayerLogic, GameLogic } from './Constants';
+import { EntityInterface, EntityManagerInterface, RendererInterface, EntityWeaponInterface, EntityInformationInterface } from './Entity';
+import { PlayerLogic, GameLogic, PlayerRender } from './Constants';
 import { RectangleInterface, Coordinate2DInterface, Vector2DInterface, MoveRectangle } from './Physics';
 import { Direction, Action } from './CommonEnums';
 import { BaseProjectile } from './BaseProjectlie';
+import { BaseEntityWeapon } from './BaseEntityWeapon';
+import { BaseEntityInfo } from './BaseEntityInfo';
+import { getRGBString } from './ColorUtil';
 
 export class BaseEntity implements EntityInterface, RendererInterface {
+	private readonly baseColor: readonly number[];
+	private velocity: Vector2DInterface;
 	public name: string;
 	public health: number;
 	public mana: number;
@@ -21,12 +26,19 @@ export class BaseEntity implements EntityInterface, RendererInterface {
 	public numTicksAlive: number;
 	public isAlive: boolean;
 	public numTicksInactive: number;
-	public opponent?: EntityInterface;
+	public weapon: EntityWeaponInterface;
+	public info: EntityInformationInterface;
 	public entityManager: EntityManagerInterface;
-	private readonly baseColor: readonly number[];
-	private velocity: Vector2DInterface;
+	public opponent?: EntityInterface;
+	
  
-	constructor(name: string, baseColor: readonly number[], entityNumber: number, entityManager: EntityManagerInterface) {
+	constructor(
+		name: string,
+		baseColor: readonly number[],
+		entityNumber: number,
+		entityManager: EntityManagerInterface,
+		info: EntityInformationInterface) {
+
 		this.name = name;
 		this.baseColor = baseColor;
 		this.entityNumber = entityNumber;
@@ -55,8 +67,29 @@ export class BaseEntity implements EntityInterface, RendererInterface {
         this.isAlive          = true;
         this.numTicksInactive = 0;
 
-        //  weapon
-        //this.arm = new Arm();
+        this.weapon = this.initWeapon(this.directionFacing);
+
+        this.info = this.initInfo();
+	}
+
+	private initWeapon(directionFacing: Direction): EntityWeaponInterface {
+		let bottomLeft: Coordinate2DInterface;
+        if (directionFacing == Direction.LEFT) {
+        	bottomLeft = {
+        		x: this.rectangle.bottomRight.x,
+        		y: this.rectangle.bottomRight.y - PlayerLogic.ARM_Y_OFFSET,
+        	};
+        } else {
+        	bottomLeft = {
+        		x: this.rectangle.bottomLeft.x,
+        		y: this.rectangle.bottomLeft.y - PlayerLogic.ARM_Y_OFFSET,
+        	};
+        }
+        return new BaseEntityWeapon(bottomLeft);
+	}
+
+	private initInfo() {
+		return new BaseEntityInfo(this, this.entityNumber);
 	}
 
 	private initVelocity(): Vector2DInterface {
@@ -77,17 +110,18 @@ export class BaseEntity implements EntityInterface, RendererInterface {
 			},
 			topLeft: {
 				x: bottomLeft.x,
-				y: bottomLeft.y + PlayerLogic.PLAYER_HEIGHT,
+				y: bottomLeft.y - PlayerLogic.PLAYER_HEIGHT,
 			},
 			topRight: {
 				x: bottomLeft.x + PlayerLogic.PLAYER_WIDTH,
-				y: bottomLeft.y + PlayerLogic.PLAYER_HEIGHT,
+				y: bottomLeft.y - PlayerLogic.PLAYER_HEIGHT,
 			},
 		};
 	}
 
 	public registerOponent(opponent: EntityInterface) {
 		this.opponent = opponent;
+		this.weapon.registerOpponent(opponent);
 	}
 
 	public getFitness(): number {
@@ -137,7 +171,7 @@ export class BaseEntity implements EntityInterface, RendererInterface {
 			knockbackVxMagnitude = PlayerLogic.KNOCKBACK_VEL_X;
 		} else {
 			this.takeDamage(damage);
-			newVelocity.vy = -PlayerLogic.KNOCKBACK_VEL_Y
+			newVelocity.vy = PlayerLogic.KNOCKBACK_VEL_Y
 			knockbackVxMagnitude = PlayerLogic.KNOCKBACK_VEL_X_BLOCK;
 		}
 		newVelocity.vx = Direction.LEFT ? -knockbackVxMagnitude : knockbackVxMagnitude;
@@ -163,7 +197,7 @@ export class BaseEntity implements EntityInterface, RendererInterface {
 	}
 
 	attack(): void {
-		//this.arm.punch();
+		this.weapon.attack(this.directionFacing);
 	}
 
 	// TODO: fix hack that requires opponent to be registered before attacking
@@ -172,7 +206,7 @@ export class BaseEntity implements EntityInterface, RendererInterface {
             this.mana = Math.max(0, this.mana - PlayerLogic.ALT_ATTACK_COST);
             let bottomLeft: Coordinate2DInterface = {
             	x: this.directionFacing == Direction.RIGHT ? this.rectangle.bottomRight.x : this.rectangle.bottomLeft.x,
-            	y: this.rectangle.topRight.y + 10 };
+            	y: this.rectangle.topRight.y + PlayerLogic.ALT_ATTACK_ORIGIN_Y_OFFSET };
             this.entityManager.addEntity(
                 new BaseProjectile(
                 	bottomLeft,
@@ -303,13 +337,13 @@ export class BaseEntity implements EntityInterface, RendererInterface {
         this.rectangle = MoveRectangle(this.rectangle, this.velocity);
 
         if (this.rectangle.bottomLeft.x < GameLogic.PLATFORM_STARTING_X + GameLogic.PLATFORM_WIDTH &&
-            this.rectangle.bottomRight.x > GameLogic.PLATFORM_STARTING_X ||
+            this.rectangle.bottomRight.x > GameLogic.PLATFORM_STARTING_X &&
             lastRectangle.topLeft.y < GameLogic.PLATFORM_STARTING_Y) {
             this.setOnstage(true);
         	let delta_y = this.rectangle.bottomLeft.y - GameLogic.PLATFORM_STARTING_Y;
         	if (delta_y > 0) {
         		// move to the floor of the platform, should not intersect platform
-        		let adjustmentVector : Vector2DInterface = { vx: 0, vy: delta_y };
+        		let adjustmentVector : Vector2DInterface = { vx: 0, vy: -delta_y };
         		this.rectangle = MoveRectangle(this.rectangle, adjustmentVector);
         	}
             
@@ -328,15 +362,67 @@ export class BaseEntity implements EntityInterface, RendererInterface {
             this.setOnstage(false);
         }
 
-        if (!this.isOnstage) {
+        // not possible to get back on stage anymore
+        if (!this.isOnstage && this.rectangle.bottomLeft.y  > GameLogic.PLATFORM_STARTING_Y) {
             this.numLives -= 1;
             this.respawn();
         }
 
-        // this.arm.tick(this.position_x + (this.face_dir == directions.RIGHT ? this.width: 0),
-        //               this.position_y-this.height+10,
-        //               this.face_dir);
+    	let bottomLeft: Coordinate2DInterface;
+        if (this.directionFacing == Direction.LEFT) {
+        	bottomLeft = {
+        		x: this.rectangle.bottomRight.x,
+        		y: this.rectangle.bottomRight.y + PlayerLogic.ARM_Y_OFFSET,
+        	};
+        } else {
+        	bottomLeft = {
+        		x: this.rectangle.bottomLeft.x,
+        		y: this.rectangle.bottomLeft.y + PlayerLogic.ARM_Y_OFFSET,
+        	};
+        }
+    	this.weapon.tick(bottomLeft, this.directionFacing);
 	}
 
+	public getBaseColor(): readonly number[] {
+		return this.baseColor;
+	}
 
+	public draw(canvas: HTMLCanvasElement) {
+		let ctx = canvas.getContext('2d');
+		if (ctx) {
+			if (this.isCharging) {
+				ctx.fillStyle = getRGBString(PlayerRender.CHARGING_COLOR);
+			} else if (this.isBlocking) {
+				ctx.fillStyle = getRGBString(PlayerRender.BLOCKING_COLOR);
+			} else {
+				ctx.fillStyle = getRGBString(this.getBaseColor());
+			}
+
+			ctx.fillRect(
+				this.rectangle.topLeft.x,
+				this.rectangle.topLeft.y,
+				PlayerLogic.PLAYER_WIDTH,
+				PlayerLogic.PLAYER_HEIGHT);
+			
+			let eyeCenter: Coordinate2DInterface = {
+				x: this.directionFacing == Direction.RIGHT ?
+					this.rectangle.bottomRight.x - PlayerRender.EYE_OFFSET_X :
+					this.rectangle.bottomLeft.x + PlayerRender.EYE_OFFSET_X,
+				y: this.rectangle.topLeft.y + PlayerRender.EYE_OFFSET_Y,
+			}; 
+			let eye = ctx.createRadialGradient(
+				eyeCenter.x,
+				eyeCenter.y,
+				PlayerRender.EYE_RADIUS_INNER,
+				eyeCenter.x,
+				eyeCenter.y,
+				PlayerRender.EYE_RADIUS_OUTER);
+
+			eye.addColorStop(0, 'white');
+			eye.addColorStop(.1, getRGBString(PlayerRender.EYE_COLOR));
+
+			this.weapon.draw(canvas);
+			this.info.draw(canvas);
+		}
+	}
 }

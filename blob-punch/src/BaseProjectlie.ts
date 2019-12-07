@@ -1,10 +1,9 @@
 import { EntityInterface, EntityManagerInterface, ProjectileInterface, RendererInterface } from './Entity';
 import { Direction } from './CommonEnums';
-import { PlayerLogic, PlayerRender } from './Constants';
+import { PlayerLogic, PlayerRender, GameLogic } from './Constants';
 import { RectangleInterface, Coordinate2DInterface, Vector2DInterface, MoveRectangle, CollisionRectRect } from './Physics';
 import { getRGBString } from './ColorUtil';
 
-// TODO: clean up magic numbers
 export class BaseProjectile implements ProjectileInterface, RendererInterface {
 	private velocityVector : Vector2DInterface;
 	private opponent: EntityInterface;
@@ -32,11 +31,11 @@ export class BaseProjectile implements ProjectileInterface, RendererInterface {
 			},
 			topLeft: {
 				x: bottomLeft.x,
-				y: bottomLeft.y + PlayerLogic.PROJECTILE_HEIGHT,
+				y: bottomLeft.y - PlayerLogic.PROJECTILE_HEIGHT,
 			},
 			topRight: {
 				x: bottomLeft.x + PlayerLogic.PROJECTILE_WIDTH,
-				y: bottomLeft.y + PlayerLogic.PROJECTILE_HEIGHT,
+				y: bottomLeft.y - PlayerLogic.PROJECTILE_HEIGHT,
 			},
 		};
 	}
@@ -50,8 +49,7 @@ export class BaseProjectile implements ProjectileInterface, RendererInterface {
 
 	public updatePosition() {
 		this.rectangle = MoveRectangle(this.rectangle, this.velocityVector);
-        if ( this.rectangle.bottomLeft.x < -10 || this.rectangle.bottomRight.x > 10 ) {
-        	// Went off stage?
+        if ( this.rectangle.bottomRight.x <  0 || this.rectangle.bottomLeft.x >  GameLogic.WIDTH ) {
             this.entityManager.removeEntity(this);
         }
 
@@ -73,7 +71,11 @@ export class BaseProjectile implements ProjectileInterface, RendererInterface {
 		let context = canvas.getContext('2d');
 		if (context) {
 			context.fillStyle = getRGBString(this.getBaseColor());
-			context.fillRect(this.rectangle.topLeft.x, this.rectangle.topLeft.y, PlayerLogic.PROJECTILE_WIDTH, PlayerLogic.PROJECTILE_HEIGHT);
+			context.fillRect(
+				this.rectangle.topLeft.x,
+				this.rectangle.topLeft.y,
+				PlayerLogic.PROJECTILE_WIDTH,
+				PlayerLogic.PROJECTILE_HEIGHT);
 		}
 	}
 }

@@ -32,6 +32,8 @@ export interface EntityInterface  extends SolidInterface, ManagedInterface {
 	numTicksAlive: number;
 	isAlive: boolean;
 	numTicksInactive: number;
+	weapon: EntityWeaponInterface;
+	info: EntityInformationInterface;
 	opponent?: EntityInterface;
 	getFitness(): number;
 	registerOponent(opponent: EntityInterface): void;
@@ -61,8 +63,11 @@ export interface EntityManagerInterface {
 	drawEntities(canvas: HTMLCanvasElement): void;
 }
 
-export interface EntityWeaponInterface extends SolidInterface {
-	attack(): void;
+export interface EntityWeaponInterface extends SolidInterface, RendererInterface {
+	opponent?: EntityInterface;
+	registerOpponent(opponent: EntityInterface): void;
+	attack( direction : Direction ): void;
+	tick(bottomLeft: Coordinate2DInterface, direction: Direction): void;
 }
 
 export interface ProjectileInterface extends SolidInterface, ManagedInterface {

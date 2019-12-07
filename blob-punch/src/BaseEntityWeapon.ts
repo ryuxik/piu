@@ -1,58 +1,144 @@
-import { EntityWeaponInterface, RendererInterface } from './Entity';
+import { EntityWeaponInterface, EntityInterface, RendererInterface } from './Entity';
+import { RectangleInterface, Vector2DInterface, Coordinate2DInterface, CollisionRectRect } from './Physics';
+import { PlayerLogic, PlayerRender } from './Constants';
+import { Direction } from './CommonEnums';
+import { getRGBString } from './ColorUtil';
 
 export class BaseEntityWeapon implements EntityWeaponInterface, RendererInterface {
-    constructor() {
-        this.out_dist = player_logic.ARM_REACH; //pixels
-        this.out_time = player_logic.ARM_SPEED; //ticks
-        this.punching = false;
+    private isAttacking: boolean;
+    private isColliding: boolean;
+    private attackingTick: number;
+    private direction: Direction;
+    public rectangle: RectangleInterface;
+    public opponent?: EntityInterface;
+    constructor(bottomLeft: Coordinate2DInterface) {
+        this.isAttacking = false;
 
-        this.x = 0;
-        this.y = 0;
-        this.dir = 0;
-        this.extension = 0;
+        this.attackingTick = 0;
+        this.isColliding = false;
+
+        this.rectangle = this.initRectangle(bottomLeft);
+        this.direction = Direction.STOP; 
     }
 
-    punch() {
-        this.time = 0;
-        this.punching = true;
-        this.connection_made = false;
+    public registerOpponent(opponent: EntityInterface): void {
+        this.opponent = opponent;
     }
 
-    tick(x, y, dir) {
-        this.time++;
-        if (this.time > this.out_time * 2) {
-            this.punching = false;
+    private initRectangle(bottomLeft: Coordinate2DInterface): RectangleInterface {
+        return {
+            bottomLeft,
+            bottomRight: {
+                x: bottomLeft.x,
+                y: bottomLeft.y,
+            },
+            topLeft: {
+                x: bottomLeft.x,
+                y: bottomLeft.y - PlayerLogic.ARM_HEIGHT,
+            },
+            topRight: {
+                x: bottomLeft.x,
+                y: bottomLeft.y - PlayerLogic.ARM_HEIGHT,
+            },
+        };
+    }
+
+    private extendRectangle(bottomLeft: Coordinate2DInterface, extension: number, direction: Direction ): RectangleInterface {
+        switch (direction) {
+            case Direction.RIGHT:
+                return {
+                    bottomLeft,
+                    bottomRight: {
+                        x: bottomLeft.x + extension,
+                        y: bottomLeft.y,
+                    },
+                    topLeft: {
+                        x: bottomLeft.x,
+                        y: bottomLeft.y - PlayerLogic.ARM_HEIGHT,
+                    },
+                    topRight: {
+                        x: bottomLeft.x + extension,
+                        y: bottomLeft.y - PlayerLogic.ARM_HEIGHT,
+                    },
+                };
+            case Direction.LEFT:
+                return {
+                    bottomLeft: {
+                        x: bottomLeft.x - extension,
+                        y: bottomLeft.y,
+                    },
+                    bottomRight: {
+                        x: bottomLeft.x,
+                        y: bottomLeft.y,
+                    },
+                    topLeft: {
+                        x: bottomLeft.x - extension,
+                        y: bottomLeft.y - PlayerLogic.ARM_HEIGHT,
+                    },
+                    topRight: {
+                        x: bottomLeft.x,
+                        y: bottomLeft.y - PlayerLogic.ARM_HEIGHT,
+                    },
+                };    
+            case Direction.STOP:
+                console.log("should never get here");
+                return this.rectangle;
+        }   
+    }
+ 
+    public attack( direction: Direction ):void {
+        this.attackingTick = 0;
+        this.isAttacking = true;
+        this.isColliding = false;
+        this.direction = direction;
+    }
+
+    public tick(bottomLeft: Coordinate2DInterface, direction: Direction) {
+        this.attackingTick++;
+        if (this.attackingTick > PlayerLogic.ARM_SPEED * 2) {
+            this.isAttacking = false;
+            this.rectangle = this.initRectangle(bottomLeft);
             return;
         }
-        var extension;
-        if (this.time < this.out_time) { // moving out
-            extension = this.time / this.out_time * this.out_dist;
-        } else { // moving in
-            extension = (this.out_time * 2 - this.time) / this.out_time * this.out_dist;
+
+        let extension: number;
+        // TODO: check this logic
+        if (this.attackingTick < PlayerLogic.ARM_SPEED) { // weapon is moving out
+            extension = ( this.attackingTick / PlayerLogic.ARM_SPEED ) * PlayerLogic.ARM_REACH;
+        } else { // weapon is moving in
+            extension = ( PlayerLogic.ARM_SPEED * 2 - this.attackingTick ) / ( PlayerLogic.ARM_SPEED * PlayerLogic.ARM_REACH ); 
         }
 
-        this.extension = extension;
-        this.x = x;
-        this.y = y;
-        this.dir = dir;
+        this.rectangle = this.extendRectangle(bottomLeft, extension, direction);
+        this.direction = direction;
+        this.updatePosition();
+    }
 
-        // collision detection
-        if (!this.connection_made) {
-            var opp = this.opp;
-            if(collideRectRect(x, y, extension, player_logic.ARM_HEIGHT,
-                opp.position_x, opp.position_y - opp.height, opp.width, opp.height)) {
-                opp.takePunch(dir);
-                this.connection_made = true;
+    public updatePosition() { //  used only for collision detection
+        if (!this.isColliding && this.opponent) {
+            if(CollisionRectRect(this.rectangle, this.opponent.rectangle)) {
+                this.opponent.takePunch(this.direction);
+                this.isColliding = true;
             }
         }
     }
 
-    draw() {
-        if(!this.punching)
+    public getBaseColor(): readonly number[] {
+        return PlayerRender.ARM_COLOR;
+    }
+
+    public draw(canvas: HTMLCanvasElement) {
+        if (!this.isAttacking) {
             return;
-        fill(player_render.ARM_COLOR);
-        if (this.dir == directions.LEFT)
-            this.x -= this.extension;
-        rect(this.x, this.y, this.extension, player_logic.ARM_HEIGHT);
+        }
+        let ctx = canvas.getContext('2d');
+        if (ctx) {
+            ctx.fillStyle = getRGBString(this.getBaseColor());
+            ctx.fillRect(
+                this.rectangle.topLeft.x,
+                this.rectangle.topLeft.y,
+                this.rectangle.topRight.x - this.rectangle.topLeft.x,
+                this.rectangle.bottomLeft.y - this.rectangle.topLeft.y);
+        }
     }
 }

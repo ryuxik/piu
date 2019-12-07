@@ -22,5 +22,4 @@ export class BaseEntityManger implements EntityManagerInterface {
             entity.draw(canvas);
         });
 	}
-
 }

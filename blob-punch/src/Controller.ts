@@ -1,13 +1,13 @@
 import { EntityInterface } from './Entity';
 
 export interface KeyBindings {
-	left: number;
-	right: number;
-	jump: number;
-	charge: number;
-	attack: number;
-	altAttack: number;
-	block: number;
+	readonly left: number;
+	readonly right: number;
+	readonly jump: number;
+	readonly charge: number;
+	readonly attack: number;
+	readonly altAttack: number;
+	readonly block: number;
 }
 
 export interface ControllerConstructor {
