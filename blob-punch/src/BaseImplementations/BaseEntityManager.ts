@@ -1,4 +1,4 @@
-import { EntityManagerInterface, EntityInterface, ProjectileInterface, RendererInterface } from './Entity';
+import { EntityManagerInterface, EntityInterface, ProjectileInterface, RendererInterface } from '../CommonInterfaces/Entity';
 
 export class BaseEntityManger implements EntityManagerInterface {
 	private _entities : Set<(EntityInterface | ProjectileInterface) & RendererInterface> = new Set();

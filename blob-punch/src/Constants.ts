@@ -1,22 +1,22 @@
 // GAME LOGIC
-export const GameLogic = <const>{
+export const GameLogic = {
     WIDTH: 1000,
     HEIGHT: 500,
     GRAVITY: 0.5,
     PLATFORM_WIDTH: 600,
     PLATFORM_HEIGHT: 10,
     PLATFORM_STARTING_X: 200,
-    PLATFORM_STARTING_Y: -90,
+    PLATFORM_STARTING_Y: 400,
     FRICTION: 0.5,
     LIFE_DELTA_MULTIPLIER: 1000,
     MANA_MULTIPLIER: 20,
     MAX_MANA: 100,
     HEALTH_MULTIPLIER: 50,
     TICK_DISCOUNT: 0.1,
-}
+} as const;
 
 // PLAYER LOGIC
-export const PlayerLogic =  <const>{
+export const PlayerLogic = {
     MAX_X_VEL_COMMANDED: 3,
     MAX_X_VEL: 8,
     MAX_Y_VEL: 10,
@@ -50,10 +50,10 @@ export const PlayerLogic =  <const>{
     PROJECTILE_VEL_X: 10,
     PROJECTILE_WIDTH: 10,
     PROJECTILE_HEIGHT: 2,
-}
+} as const;
 
 // PLAYER RENDER
-export const PlayerRender = <const>{
+export const PlayerRender = {
     COLOR: [197, 254, 0],
     ALT_COLOR: [254, 176, 41],
     CHARGING_COLOR: [1, 254, 254],
@@ -65,10 +65,10 @@ export const PlayerRender = <const>{
     EYE_RADIUS_INNER: 2,
     ARM_COLOR: [0,0,0],
     PROJECTILE_COLOR: [0,0,0],
-}
+} as const;
 
 //PLAYER INFO RENDER
-export const PlayerInfoRender = <const>{
+export const PlayerInfoRender = {
     INFO_CONTAINER_COLOR: [220, 220, 220],
     INFO_CONTAINER_LEFT_POS_X: GameLogic.WIDTH/2 - 200,
     INFO_CONTAINER_RIGHT_POS_X: GameLogic.WIDTH/2 + 100,
@@ -92,10 +92,13 @@ export const PlayerInfoRender = <const>{
     MANA_BAR_INNER_Y_OFFSET: 27,
     MANA_BAR_INNER_HEIGHT: 6,
     FITNESS_X_OFFSET: 50,
-}
+} as const;
 
 // GAME RENDER
-export const GameRender = <const>{
-    BACKGROUND_COLOR: [200,200,200],
-}
+export const GameRender = {
+    BACKGROUND_COLOR: [255, 255, 255],
+    BACKGROUND_WIDTH: 1000,
+    BACKGROUND_HEIGHT: 500,
+    PLATFORM_COLOR: [27, 0, 46],
+} as const;
 

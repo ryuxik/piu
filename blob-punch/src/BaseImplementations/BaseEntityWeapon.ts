@@ -1,8 +1,9 @@
-import { EntityWeaponInterface, EntityInterface, RendererInterface } from './Entity';
-import { RectangleInterface, Vector2DInterface, Coordinate2DInterface, CollisionRectRect } from './Physics';
-import { PlayerLogic, PlayerRender } from './Constants';
-import { Direction } from './CommonEnums';
-import { getRGBString } from './ColorUtil';
+import { EntityWeaponInterface, EntityInterface, RendererInterface } from '../CommonInterfaces/Entity';
+import { RectangleInterface, Vector2DInterface, Coordinate2DInterface } from '../CommonInterfaces/Physics';
+import { PlayerLogic, PlayerRender } from '../Constants';
+import { Direction } from '../CommonEnums';
+import { getRGBString } from '../Utils/ColorUtil';
+import { CollisionRectRect } from '../Utils/PhysicsUtils';
 
 export class BaseEntityWeapon implements EntityWeaponInterface, RendererInterface {
     private isAttacking: boolean;

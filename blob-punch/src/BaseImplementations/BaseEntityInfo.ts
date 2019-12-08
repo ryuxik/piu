@@ -1,7 +1,7 @@
-import { EntityInformationInterface, EntityInterface, RendererInterface} from './Entity';
-import { Coordinate2DInterface } from './Physics';
-import { PlayerInfoRender } from './Constants';
-import { getRGBString } from './ColorUtil';
+import { EntityInformationInterface, EntityInterface, RendererInterface} from '../CommonInterfaces/Entity';
+import { Coordinate2DInterface } from '../CommonInterfaces/Physics';
+import { PlayerInfoRender } from '../Constants';
+import { getRGBString } from '../Utils/ColorUtil';
 
 export class BaseEntityInfo implements EntityInformationInterface {
 	public entity: EntityInterface & RendererInterface;

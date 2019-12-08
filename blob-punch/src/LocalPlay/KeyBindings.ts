@@ -1,4 +1,4 @@
-import { KeyBindings } from './Controller';
+import { KeyBindings } from '../CommonInterfaces/Controller';
 
 export class PlayerOneKeyBindings implements KeyBindings {
     public readonly left      = 37;  // left arrow

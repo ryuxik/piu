@@ -1,8 +1,9 @@
-import { EntityInterface, EntityManagerInterface, ProjectileInterface, RendererInterface } from './Entity';
-import { Direction } from './CommonEnums';
-import { PlayerLogic, PlayerRender, GameLogic } from './Constants';
-import { RectangleInterface, Coordinate2DInterface, Vector2DInterface, MoveRectangle, CollisionRectRect } from './Physics';
-import { getRGBString } from './ColorUtil';
+import { EntityInterface, EntityManagerInterface, ProjectileInterface, RendererInterface } from '../CommonInterfaces/Entity';
+import { Direction } from '../CommonEnums';
+import { PlayerLogic, PlayerRender, GameLogic } from '../Constants';
+import { RectangleInterface, Coordinate2DInterface, Vector2DInterface } from '../CommonInterfaces/Physics';
+import { getRGBString } from '../Utils/ColorUtil';
+import { CollisionRectRect, MoveRectangle } from '../Utils/PhysicsUtils';
 
 export class BaseProjectile implements ProjectileInterface, RendererInterface {
 	private velocityVector : Vector2DInterface;

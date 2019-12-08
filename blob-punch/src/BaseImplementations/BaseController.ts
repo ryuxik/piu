@@ -1,6 +1,6 @@
-import { ControllerInterface, KeyBindings } from './Controller';
-import { EntityInterface } from './Entity';
-import { Action, Direction } from './CommonEnums';
+import { ControllerInterface, KeyBindings } from '../CommonInterfaces/Controller';
+import { EntityInterface } from '../CommonInterfaces/Entity';
+import { Action, Direction } from '../CommonEnums';
 
 export class BaseController implements ControllerInterface {
     private _entity: EntityInterface;
@@ -27,55 +27,55 @@ export class BaseController implements ControllerInterface {
         }
     }
 
-    public moveLeft() {
+    private moveLeft() {
         this._leftArrowActive = true;
         this.figureDirection();    
     }
 
-    public moveRight() {
+    private moveRight() {
         this._rightArrowActive = true;
         this.figureDirection();    
     }
 
-    public stopLeft() {
+    private stopLeft() {
         this._leftArrowActive = false;
         this.figureDirection();    
     }
 
-    public stopRight() {
+    private stopRight() {
         this._rightArrowActive = false;
         this.figureDirection();    
     }
 
-    public stop() {
+    private stop() {
         this._entity.takeDirection(Direction.STOP);     
     }
 
-    public jump() {
+    private jump() {
         this._entity.takeAction(Action.JUMP);
     }
 
-    public chargeMana() {
+    private chargeMana() {
         this._entity.takeAction(Action.CHARGE_MANA);
     }
 
-    public attack() {
+    private attack() {
         this._entity.takeAction(Action.ATTACK);
     }
 
-    public altAttack() {
+    private altAttack() {
         this._entity.takeAction(Action.ALT_ATTACK);
     }
 
-    public addMana() {
+    private addMana() {
         this._entity.addMana();
     }
     
-    public block() {
+    private block() {
         this._entity.takeAction(Action.BLOCK);
     }
 
-    public releaseBlock() {
+    private releaseBlock() {
         this._entity.releaseBlock();
     }
 

@@ -1,0 +1,35 @@
+body {
+    margin: 0;
+}
+
+.piu-app {
+    font-family: 'Roboto Mono', monospace;
+    width: 100vw;
+    height: 100vh;
+    background-color: #F2F6ED;
+}
+
+.nav {
+    background-color: chartreuse;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 15vh;
+}
+
+.nav-title {
+    font-size: 3rem;
+}
+
+.canvas-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 60vh;
+}
+
+.action-canvas {
+    border: 1px solid black;
+}

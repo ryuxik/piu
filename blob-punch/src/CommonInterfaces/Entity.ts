@@ -1,4 +1,4 @@
-import { Direction, Action } from './CommonEnums';
+import { Direction, Action } from '../CommonEnums';
 import { RectangleInterface, Coordinate2DInterface, Vector2DInterface } from './Physics';
 
 // Entity Roles

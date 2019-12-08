@@ -1,11 +1,17 @@
-import { EntityInterface, EntityManagerInterface, RendererInterface, EntityWeaponInterface, EntityInformationInterface } from './Entity';
-import { PlayerLogic, GameLogic, PlayerRender } from './Constants';
-import { RectangleInterface, Coordinate2DInterface, Vector2DInterface, MoveRectangle } from './Physics';
-import { Direction, Action } from './CommonEnums';
+import { 
+	EntityInterface,
+	EntityManagerInterface,
+	RendererInterface,
+	EntityWeaponInterface,
+	EntityInformationInterface } from '../CommonInterfaces/Entity';
+import { PlayerLogic, GameLogic, PlayerRender } from '../Constants';
+import { RectangleInterface, Coordinate2DInterface, Vector2DInterface } from '../CommonInterfaces/Physics';
+import { Direction, Action } from '../CommonEnums';
 import { BaseProjectile } from './BaseProjectlie';
 import { BaseEntityWeapon } from './BaseEntityWeapon';
 import { BaseEntityInfo } from './BaseEntityInfo';
-import { getRGBString } from './ColorUtil';
+import { getRGBString } from '../Utils/ColorUtil';
+import { MoveRectangle } from '../Utils/PhysicsUtils';
 
 export class BaseEntity implements EntityInterface, RendererInterface {
 	private readonly baseColor: readonly number[];

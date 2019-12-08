@@ -1,19 +1,4 @@
-export interface Coordinate2DInterface {
-	x: number;
-	y: number;
-}
-
-export interface Vector2DInterface {
-	vx: number;
-	vy: number;
-}
-
-export interface RectangleInterface {
-	bottomLeft: Coordinate2DInterface;
-	bottomRight: Coordinate2DInterface;
-	topLeft: Coordinate2DInterface;
-	topRight: Coordinate2DInterface;
-}
+import { RectangleInterface, Coordinate2DInterface, Vector2DInterface } from "../CommonInterfaces/Physics";
 
 export function CollisionRectRect (thisShape: RectangleInterface, otherShape: RectangleInterface): boolean {
 	return thisShape.bottomLeft.x < otherShape.bottomRight.x &&
