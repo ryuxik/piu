@@ -17,7 +17,7 @@ export class BaseEntityInfo implements EntityInformationInterface {
 
 	public draw(canvas: HTMLCanvasElement) {
 		let topLeft: Coordinate2DInterface = {
-			x: (this.entityNumber % 2 == 0) ? 
+			x: (this.entityNumber % 2 === 0) ? 
                 PlayerInfoRender.INFO_CONTAINER_LEFT_POS_X:
                 PlayerInfoRender.INFO_CONTAINER_RIGHT_POS_X,
             y: PlayerInfoRender.INFO_CONTAINER_POS_Y,

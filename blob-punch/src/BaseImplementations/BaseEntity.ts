@@ -34,21 +34,18 @@ export class BaseEntity implements EntityInterface, RendererInterface {
 	public numTicksInactive: number;
 	public weapon: EntityWeaponInterface;
 	public info: EntityInformationInterface;
-	public entityManager: EntityManagerInterface;
+	public entityManager?: EntityManagerInterface;
 	public opponent?: EntityInterface;
 	
  
 	constructor(
 		name: string,
 		baseColor: readonly number[],
-		entityNumber: number,
-		entityManager: EntityManagerInterface,
-		info: EntityInformationInterface) {
+		entityNumber: number) {
 
 		this.name = name;
 		this.baseColor = baseColor;
 		this.entityNumber = entityNumber;
-		this.entityManager = entityManager;
 
 		//  condition
         this.health = PlayerLogic.STARTING_HEALTH;
@@ -63,7 +60,7 @@ export class BaseEntity implements EntityInterface, RendererInterface {
         //  state
         this.isOnstage        = true;
         this.directionMoving  = Direction.STOP;
-        this.directionFacing  = (entityNumber % 2 == 0) ? Direction.RIGHT : Direction.LEFT;
+        this.directionFacing  = (entityNumber % 2 === 0) ? Direction.RIGHT : Direction.LEFT;
         this.numLives         = PlayerLogic.STARTING_LIVES;
         this.chargeCounter    = 0;
         this.isCharging       = false;
@@ -80,7 +77,7 @@ export class BaseEntity implements EntityInterface, RendererInterface {
 
 	private initWeapon(directionFacing: Direction): EntityWeaponInterface {
 		let bottomLeft: Coordinate2DInterface;
-        if (directionFacing == Direction.LEFT) {
+        if (directionFacing === Direction.LEFT) {
         	bottomLeft = {
         		x: this.rectangle.bottomRight.x,
         		y: this.rectangle.bottomRight.y - PlayerLogic.ARM_Y_OFFSET,
@@ -125,6 +122,10 @@ export class BaseEntity implements EntityInterface, RendererInterface {
 		};
 	}
 
+	public registerEntityManager(entityManager: EntityManagerInterface) {
+		this.entityManager = entityManager;
+	}
+
 	public registerOponent(opponent: EntityInterface) {
 		this.opponent = opponent;
 		this.weapon.registerOpponent(opponent);
@@ -160,7 +161,7 @@ export class BaseEntity implements EntityInterface, RendererInterface {
 	}
 
 	public jump(): void {
-		if (this.rectangle.bottomLeft.y == GameLogic.PLATFORM_HEIGHT) {
+		if (this.rectangle.bottomLeft.y === GameLogic.PLATFORM_HEIGHT) {
 			let velocity = {
 				vx : this.velocity.vx,
 				vy: PlayerLogic.JUMP_VEL_Y,
@@ -211,14 +212,15 @@ export class BaseEntity implements EntityInterface, RendererInterface {
 		if (this.mana > PlayerLogic.ALT_ATTACK_COST) {
             this.mana = Math.max(0, this.mana - PlayerLogic.ALT_ATTACK_COST);
             let bottomLeft: Coordinate2DInterface = {
-            	x: this.directionFacing == Direction.RIGHT ? this.rectangle.bottomRight.x : this.rectangle.bottomLeft.x,
-            	y: this.rectangle.topRight.y + PlayerLogic.ALT_ATTACK_ORIGIN_Y_OFFSET };
-            this.entityManager.addEntity(
-                new BaseProjectile(
-                	bottomLeft,
-                	this.directionFacing,
-                	this.opponent!,
-                	this.entityManager));
+            	x: this.directionFacing === Direction.RIGHT ? this.rectangle.bottomRight.x : this.rectangle.bottomLeft.x,
+				y: this.rectangle.topRight.y + PlayerLogic.ALT_ATTACK_ORIGIN_Y_OFFSET };
+			if (this.entityManager && this.opponent) {
+				this.entityManager.addEntity(
+					new BaseProjectile(
+						bottomLeft,
+						this.directionFacing,
+						this.opponent));
+			}
         } 
 	}
 
@@ -334,7 +336,7 @@ export class BaseEntity implements EntityInterface, RendererInterface {
             this.knockbackTicks--;
 
         let commandedXVel = this.getCommandedXVel();
-        if (this.knockbackTicks == 0) {
+        if (this.knockbackTicks === 0) {
             this.velocity.vx = commandedXVel;
         }
         
@@ -353,10 +355,10 @@ export class BaseEntity implements EntityInterface, RendererInterface {
         		this.rectangle = MoveRectangle(this.rectangle, adjustmentVector);
         	}
             
-            if (this.rectangle.bottomRight.y == GameLogic.PLATFORM_STARTING_Y) {
+            if (this.rectangle.bottomRight.y === GameLogic.PLATFORM_STARTING_Y) {
                 this.velocity.vy = 0;
                 // friction from standing on the platform
-                if (this.directionMoving == Direction.STOP) {
+                if (this.directionMoving === Direction.STOP) {
                     this.velocity.vx += this.velocity.vx > 0 ? -GameLogic.FRICTION : GameLogic.FRICTION;
                     // Remove entity creeping
                     if (Math.abs(this.velocity.vx) <= PlayerLogic.MIN_VEL_X) {
@@ -375,7 +377,7 @@ export class BaseEntity implements EntityInterface, RendererInterface {
         }
 
     	let bottomLeft: Coordinate2DInterface;
-        if (this.directionFacing == Direction.LEFT) {
+        if (this.directionFacing === Direction.LEFT) {
         	bottomLeft = {
         		x: this.rectangle.bottomRight.x,
         		y: this.rectangle.bottomRight.y + PlayerLogic.ARM_Y_OFFSET,
@@ -411,7 +413,7 @@ export class BaseEntity implements EntityInterface, RendererInterface {
 				PlayerLogic.PLAYER_HEIGHT);
 			
 			let eyeCenter: Coordinate2DInterface = {
-				x: this.directionFacing == Direction.RIGHT ?
+				x: this.directionFacing === Direction.RIGHT ?
 					this.rectangle.bottomRight.x - PlayerRender.EYE_OFFSET_X :
 					this.rectangle.bottomLeft.x + PlayerRender.EYE_OFFSET_X,
 				y: this.rectangle.topLeft.y + PlayerRender.EYE_OFFSET_Y,

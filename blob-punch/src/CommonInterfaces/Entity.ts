@@ -9,7 +9,8 @@ export interface SolidInterface {
 }
 
 export interface ManagedInterface {
-	entityManager: EntityManagerInterface,
+	entityManager?: EntityManagerInterface,
+	registerEntityManager(entityManager: EntityManagerInterface): void;
 }
 
 export interface EntityInformationInterface extends RendererInterface {

@@ -4,11 +4,12 @@ export class BaseEntityManger implements EntityManagerInterface {
 	private _entities : Set<(EntityInterface | ProjectileInterface) & RendererInterface> = new Set();
 
 	public removeEntity( entity: (EntityInterface | ProjectileInterface) & RendererInterface ) {
-		this._entities.add(entity);
+		this._entities.delete(entity);
 	}
 
 	public addEntity( entity: (EntityInterface | ProjectileInterface) & RendererInterface ) {
-		this._entities.delete(entity);
+		this._entities.add(entity);
+		entity.registerEntityManager(this);
 	}
 
 	public updateEntityPositions() {

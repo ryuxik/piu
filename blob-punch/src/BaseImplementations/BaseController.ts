@@ -80,40 +80,40 @@ export class BaseController implements ControllerInterface {
     }
 
     public keyPressed(keyCode: number) {
-        if(keyCode == this._keyBindings.left) {
+        if(keyCode === this._keyBindings.left) {
             this.moveLeft();
         }
-        if(keyCode == this._keyBindings.right) {
+        if(keyCode === this._keyBindings.right) {
             this.moveRight();
         }
-        if(keyCode == this._keyBindings.jump) {
+        if(keyCode === this._keyBindings.jump) {
             this.jump();
         }
-        if(keyCode == this._keyBindings.charge) {
+        if(keyCode === this._keyBindings.charge) {
             this.chargeMana();
         }
-        if(keyCode == this._keyBindings.attack) {
+        if(keyCode === this._keyBindings.attack) {
             this.attack();
         }
-        if(keyCode == this._keyBindings.altAttack){
+        if(keyCode === this._keyBindings.altAttack){
             this.altAttack();
         }
-        if(keyCode == this._keyBindings.block) {
+        if(keyCode === this._keyBindings.block) {
             this.block();
         }
     }
 
     public keyReleased(keyCode: number) {
-        if(keyCode == this._keyBindings.left) {
+        if(keyCode === this._keyBindings.left) {
             this.stopLeft();
         }
-        if(keyCode == this._keyBindings.right) {
+        if(keyCode === this._keyBindings.right) {
             this.stopRight();
         }
-        if(keyCode == this._keyBindings.charge) {
+        if(keyCode === this._keyBindings.charge) {
             this.addMana();
         }
-        if(keyCode == this._keyBindings.block) {
+        if(keyCode === this._keyBindings.block) {
             this.releaseBlock();
         }
     }

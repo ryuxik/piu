@@ -9,15 +9,14 @@ export class BaseProjectile implements ProjectileInterface, RendererInterface {
 	private velocityVector : Vector2DInterface;
 	private opponent: EntityInterface;
 	private connectionMade: boolean;
-	public entityManager: EntityManagerInterface;
+	public entityManager?: EntityManagerInterface;
 	public rectangle : RectangleInterface;
 
-	constructor(bottomLeft: Coordinate2DInterface , direction: Direction, opponent: EntityInterface, entityManager: EntityManagerInterface) {
+	constructor(bottomLeft: Coordinate2DInterface , direction: Direction, opponent: EntityInterface) {
 		this.rectangle = this.initRectangle(bottomLeft);
 		this.velocityVector = this.initVelocityVector(direction);
 		this.opponent = opponent;
 		this.connectionMade = false;
-		this.entityManager = entityManager;
 	}
 
 	private initRectangle(bottomLeft: Coordinate2DInterface) {
@@ -43,23 +42,31 @@ export class BaseProjectile implements ProjectileInterface, RendererInterface {
 
 	private initVelocityVector(direction: Direction): Vector2DInterface {
 		return {
-			vx: direction == Direction.RIGHT ? PlayerLogic.PROJECTILE_VEL_X: -PlayerLogic.PROJECTILE_VEL_X,
+			vx: direction === Direction.RIGHT ? PlayerLogic.PROJECTILE_VEL_X: -PlayerLogic.PROJECTILE_VEL_X,
 			vy: 0,
 		};
+	}
+
+	public registerEntityManager(entityManager: EntityManagerInterface): void {
+		this.entityManager = entityManager;
 	}
 
 	public updatePosition() {
 		this.rectangle = MoveRectangle(this.rectangle, this.velocityVector);
         if ( this.rectangle.bottomRight.x <  0 || this.rectangle.bottomLeft.x >  GameLogic.WIDTH ) {
-            this.entityManager.removeEntity(this);
+			if(this.entityManager) {
+				this.entityManager.removeEntity(this);
+			} 
         }
 
         // collision detection
         if (!this.connectionMade) {
             if (CollisionRectRect(this.rectangle, this.opponent.rectangle)) {
                 this.opponent.takePiu((this.velocityVector.vx < 0 ? Direction.LEFT : Direction.RIGHT));
-                this.connectionMade = true;
-                this.entityManager.removeEntity(this);
+				this.connectionMade = true;
+				if (this.entityManager) {
+					this.entityManager.removeEntity(this);
+				}
             }
         }
 	}

@@ -1,5 +1,5 @@
 import { EntityWeaponInterface, EntityInterface, RendererInterface } from '../CommonInterfaces/Entity';
-import { RectangleInterface, Vector2DInterface, Coordinate2DInterface } from '../CommonInterfaces/Physics';
+import { RectangleInterface, Coordinate2DInterface } from '../CommonInterfaces/Physics';
 import { PlayerLogic, PlayerRender } from '../Constants';
 import { Direction } from '../CommonEnums';
 import { getRGBString } from '../Utils/ColorUtil';
