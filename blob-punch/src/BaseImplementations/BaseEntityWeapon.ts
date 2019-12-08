@@ -116,8 +116,10 @@ export class BaseEntityWeapon implements EntityWeaponInterface, RendererInterfac
     }
 
     public updatePosition() { //  used only for collision detection
+        
         if (!this.isColliding && this.opponent) {
             if(CollisionRectRect(this.rectangle, this.opponent.rectangle)) {
+                console.log("collided");
                 this.opponent.takePunch(this.direction);
                 this.isColliding = true;
             }

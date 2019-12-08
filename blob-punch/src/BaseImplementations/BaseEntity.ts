@@ -75,20 +75,24 @@ export class BaseEntity implements EntityInterface, RendererInterface {
         this.info = this.initInfo();
 	}
 
-	private initWeapon(directionFacing: Direction): EntityWeaponInterface {
+	private getWeaponOrigin(directionFacing: Direction) {
 		let bottomLeft: Coordinate2DInterface;
-        if (directionFacing === Direction.LEFT) {
-        	bottomLeft = {
-        		x: this.rectangle.bottomRight.x,
-        		y: this.rectangle.bottomRight.y - PlayerLogic.ARM_Y_OFFSET,
-        	};
-        } else {
+		if (directionFacing === Direction.LEFT) {
         	bottomLeft = {
         		x: this.rectangle.bottomLeft.x,
-        		y: this.rectangle.bottomLeft.y - PlayerLogic.ARM_Y_OFFSET,
+        		y: this.rectangle.bottomLeft.y + PlayerLogic.ARM_Y_OFFSET,
+			};
+        } else {
+        	bottomLeft = {
+        		x: this.rectangle.bottomRight.x,
+        		y: this.rectangle.bottomRight.y + PlayerLogic.ARM_Y_OFFSET,
         	};
-        }
-        return new BaseEntityWeapon(bottomLeft);
+		}
+		return bottomLeft;
+	}
+
+	private initWeapon(directionFacing: Direction): EntityWeaponInterface {
+        return new BaseEntityWeapon(this.getWeaponOrigin(directionFacing));
 	}
 
 	private initInfo() {
@@ -161,7 +165,7 @@ export class BaseEntity implements EntityInterface, RendererInterface {
 	}
 
 	public jump(): void {
-		if (this.rectangle.bottomLeft.y === GameLogic.PLATFORM_HEIGHT) {
+		if (this.rectangle.bottomLeft.y === GameLogic.PLATFORM_STARTING_Y) {
 			let velocity = {
 				vx : this.velocity.vx,
 				vy: PlayerLogic.JUMP_VEL_Y,
@@ -329,11 +333,13 @@ export class BaseEntity implements EntityInterface, RendererInterface {
             return;
         }
 
-        if (this.isCharging)
-            this.chargeCounter += 1;
+        if (this.isCharging) {
+			this.chargeCounter += 1;
+		}
 
-        if (this.knockbackTicks > 0)
-            this.knockbackTicks--;
+        if (this.knockbackTicks > 0) {
+			this.knockbackTicks--;
+		}
 
         let commandedXVel = this.getCommandedXVel();
         if (this.knockbackTicks === 0) {
@@ -374,21 +380,9 @@ export class BaseEntity implements EntityInterface, RendererInterface {
         if (!this.isOnstage && this.rectangle.bottomLeft.y  > GameLogic.PLATFORM_STARTING_Y) {
             this.numLives -= 1;
             this.respawn();
-        }
-
-    	let bottomLeft: Coordinate2DInterface;
-        if (this.directionFacing === Direction.LEFT) {
-        	bottomLeft = {
-        		x: this.rectangle.bottomRight.x,
-        		y: this.rectangle.bottomRight.y + PlayerLogic.ARM_Y_OFFSET,
-        	};
-        } else {
-        	bottomLeft = {
-        		x: this.rectangle.bottomLeft.x,
-        		y: this.rectangle.bottomLeft.y + PlayerLogic.ARM_Y_OFFSET,
-        	};
-        }
-    	this.weapon.tick(bottomLeft, this.directionFacing);
+		}
+		
+    	this.weapon.tick(this.getWeaponOrigin(this.directionFacing), this.directionFacing);
 	}
 
 	public getBaseColor(): readonly number[] {

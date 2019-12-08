@@ -30,13 +30,7 @@ class GameCanvas extends Component<GameCanvasProps, GameCanvasState> {
 			isActive: false,
 			numTicksActive: 0,
 		}
-		this.ticker = setInterval(
-			() => {
-				this.tick();
-				console.log(this.state.numTicksActive);
-			},
-			16
-		);
+		this.ticker = setInterval(() => this.tick(), GameLogic.MS_PER_TICK);
 	}
 
 	componentDidMount() {

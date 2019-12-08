@@ -13,6 +13,7 @@ export const GameLogic = {
     MAX_MANA: 100,
     HEALTH_MULTIPLIER: 50,
     TICK_DISCOUNT: 0.1,
+    MS_PER_TICK: 16,
 } as const;
 
 // PLAYER LOGIC

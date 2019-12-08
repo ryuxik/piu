@@ -62,6 +62,7 @@ export class BaseProjectile implements ProjectileInterface, RendererInterface {
         // collision detection
         if (!this.connectionMade) {
             if (CollisionRectRect(this.rectangle, this.opponent.rectangle)) {
+				console.log("collided");
                 this.opponent.takePiu((this.velocityVector.vx < 0 ? Direction.LEFT : Direction.RIGHT));
 				this.connectionMade = true;
 				if (this.entityManager) {
