@@ -1,95 +1,78 @@
 import React, {Component} from 'react';
-import { ControllerInterface } from './CommonInterfaces/Controller';
+import { ControllerInterface, KeyBindings } from './CommonInterfaces/Controller';
 import { EntityInterface, EntityManagerInterface, RendererInterface } from './CommonInterfaces/Entity';
 import { GameLogic, GameRender } from './Constants';
 import { getRGBString } from './Utils/ColorUtil';
-import { BaseEntityManger } from './BaseImplementations/BaseEntityManager';
+import { GameRunner, GameState } from './GameRunner';
+import { BaseEntity } from './BaseImplementations/BaseEntity';
+import { BaseController } from './BaseImplementations/BaseController';
+import { PlayerOneKeyBindings, PlayerTwoKeyBindings } from './LocalPlay/LocalKeyBindings';
 
 type GameCanvasProps = {
-	entities: (EntityInterface & RendererInterface)[],
-	controllers: ControllerInterface[],
-	resetGameCallback: () => Promise<void>;
 }
 
 type GameCanvasState = {
-	entityManager: EntityManagerInterface;
-	isActive: boolean;
-	numTicksActive: number;
-	isGameOver: boolean;
+	entities: (EntityInterface & RendererInterface)[],
+	controllers: ControllerInterface[], 
+	gameRunner: GameRunner,
 }
 
 class GameCanvas extends Component<GameCanvasProps, GameCanvasState> {
 	private canvasRef : React.RefObject<HTMLCanvasElement> = React.createRef<HTMLCanvasElement>();
-	private ticker: NodeJS.Timeout;
 	constructor(props: GameCanvasProps) {
 		super(props);
-		let entityManager = new BaseEntityManger();
-		props.entities.forEach((entity: (EntityInterface & RendererInterface)) => {
-			entityManager.addEntity(entity);
-		});
-		this.state = {
-			entityManager,
-			isActive: false,
-			numTicksActive: 0,
-			isGameOver: false,
-		};
-		this.ticker = setInterval(() => this.tick(), GameLogic.MS_PER_TICK);
+		this.state = this.getBaseState();
+	}
+
+	private initPlayers(): BaseEntity[] {
+		let playerOne = new BaseEntity("playerOne", [250, 90, 73], 1);
+		let playerTwo = new BaseEntity("playerTwo", [90, 250, 73], 2);
+		playerOne.registerOponent(playerTwo);
+		playerTwo.registerOponent(playerOne);
+		return [playerOne, playerTwo];
+	}
+	
+	private initControllers(players: BaseEntity[], keyBindings: KeyBindings[]) {
+		let controllers: BaseController[] = [];
+		for (let i = 0; i < players.length; i++) {
+			const player = players[i];
+			let controller = new BaseController(player, keyBindings[i]);
+			controllers.push(controller);
+		}
+		return controllers;
+	}
+	
+	private getBaseState(): GameCanvasState {
+		let entities = this.initPlayers();
+		let controllers = this.initControllers( entities, [new PlayerOneKeyBindings(), new PlayerTwoKeyBindings()]);
+		let gameRunner = new GameRunner(entities, controllers, this.endCallback, this.drawCallback);
+		return { entities, controllers, gameRunner };
 	}
 
 	componentDidMount() {
-		document.addEventListener("keydown", this.keyPressed);
-		document.addEventListener("keyup", this.keyReleased);
+		document.addEventListener("keydown", this.onKeyPressed);
+		document.addEventListener("keyup", this.onKeyReleased);
 	}
 
 	componentWillUnmount() {
-		document.removeEventListener("keydown", this.keyPressed);
-		document.removeEventListener("keyup", this.keyReleased);
-		clearInterval(this.ticker);
+		document.removeEventListener("keydown", this.onKeyPressed);
+		document.removeEventListener("keyup", this.onKeyReleased);
 	}
 
-	public resetGame = async (): Promise<void> => {
-		// TODO fix this bug
-		await this.props.resetGameCallback();
-		this.startGame();
+	public startGame = (): void => {
+		this.setState({gameRunner: this.state.gameRunner.startGame()});
 	}
 
-	public startGame = (): void  => {
-		this.setState((state: GameCanvasState) => {
-			this.draw();
-			return {
-				entityManager: state.entityManager,
-				isActive: true,
-				isGameOver: false,
-				numTicksActive: 0,
-			} as GameCanvasState;	
-		});
+	public resetGame = (): void => {
+		let baseState = this.getBaseState();
+		this.setState({
+			entities : baseState.entities,
+			controllers : baseState.controllers,
+			gameRunner : baseState.gameRunner.startGame(),
+		})
 	}
 
-	public tick(): void {
-		this.setState((state: GameCanvasState, props: GameCanvasProps) => {
-			if (state.isActive && !state.isGameOver) {
-				state.entityManager.updateEntityPositions();
-				this.draw();
-				for (let i = 0; i < props.entities.length; i++) {
-					const entity = props.entities[i];
-					if (!entity.isAlive) {
-						return {
-							isActive: false,
-							isGameOver: true,
-							numTicksActive: 0,
-						} as GameCanvasState;
-					}
-				}
-				return {
-					numTicksActive: state.numTicksActive + 1,
-				} as GameCanvasState;
-			} else {
-				return state;
-			}
-		});
-	}
-
-	private draw = () => {
+	private drawCallback = (entityManager: EntityManagerInterface) => {
 		const node = this.canvasRef.current;
 		if ( node ) {
 			let ctx = node.getContext("2d");
@@ -107,38 +90,37 @@ class GameCanvas extends Component<GameCanvasProps, GameCanvasState> {
 					GameLogic.PLATFORM_WIDTH,
 					GameLogic.PLATFORM_HEIGHT);
 				
-				this.state.entityManager.drawEntities(node);	
+				entityManager.drawEntities(node);	
 			}
 		}
 	}
 
-	keyPressed = (e: KeyboardEvent) => {
-		if(this.state.isActive) {
-			let keyCode = e.keyCode;
-			this.props.controllers.forEach((controller: ControllerInterface) => {
-				controller.keyPressed(keyCode);
-			});
-		}
+	// TODO: figure out a less hacky way to re-render when it is game over.
+	private endCallback = () => {
+		this.setState(this.state);
+	}
+
+	onKeyPressed = (e: KeyboardEvent) => {
+		this.state.gameRunner.onKeyPressed(e.keyCode);
     }
 
-    keyReleased = (e: KeyboardEvent) => {
-        if (this.state.isActive) {
-			let keyCode = e.keyCode;
-			this.props.controllers.forEach((controller: ControllerInterface) => {
-				controller.keyReleased(keyCode);
-			});
-		}
+    onKeyReleased = (e: KeyboardEvent) => {
+	   this.state.gameRunner.onKeyReleased(e.keyCode);
 	}
 	
 	private renderGamePrompt = (): JSX.Element => {
+		let gameState = this.state.gameRunner.getGameState();
 		let gamePrompt;
 		let callback: () => void;
-		if ( this.state.isGameOver ) {
+		if ( gameState === GameState.OVER ) {
 			gamePrompt = 'GAME OVER: CLICK ME TO START A NEW GAME';
 			callback = () => this.resetGame();
-		} else {
+		} else if (gameState === GameState.STANDBY) {
 			gamePrompt = 'CLICK ME TO START THE GAME';
 			callback = () => this.startGame();
+		} else {
+			gamePrompt = '';
+			callback = () => {return};
 		}
 		return (
 			<div className="game-prompt-container" onClick={callback}>
@@ -146,6 +128,7 @@ class GameCanvas extends Component<GameCanvasProps, GameCanvasState> {
 			</div>
 		);
 	}
+
 	private renderCanvas = (): JSX.Element => {
 		return (
 			<canvas className="action-canvas"
@@ -155,10 +138,15 @@ class GameCanvas extends Component<GameCanvasProps, GameCanvasState> {
 		);
 	}
 
+	private isPausedOrRunning= (): boolean => {
+		let gameState = this.state.gameRunner.getGameState();
+		return gameState === GameState.RUNNING || gameState === GameState.PAUSED;
+	}
+
     render() {
     	return (
 			<div className="canvas-container"> 
-				{this.state.isActive ? this.renderCanvas() : this.renderGamePrompt()}
+				{ this.isPausedOrRunning() ? this.renderCanvas() : this.renderGamePrompt() }
 			</div>
     	);
     }
