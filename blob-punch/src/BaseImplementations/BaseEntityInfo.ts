@@ -25,15 +25,16 @@ export class BaseEntityInfo implements EntityInformationInterface {
         let ctx = canvas.getContext('2d');
         if ( ctx ) {
         	// border
-        	ctx.fillStyle = getRGBString(this.getBaseColor());
-        	ctx.fillRect(
+        	ctx.strokeStyle = getRGBString(this.entity.getBaseColor());
+        	ctx.strokeRect(
         		topLeft.x - PlayerInfoRender.INFO_BORDER_X_OFFSET,
         		topLeft.y - PlayerInfoRender.INFO_BORDER_Y_OFFSET,
         		PlayerInfoRender.INFO_BORDER_WIDTH,
-        		PlayerInfoRender.INFO_BORDER_HEIGHT);
+				PlayerInfoRender.INFO_BORDER_HEIGHT);
 
+			// name
         	ctx.fillStyle = getRGBString(this.entity.getBaseColor());
-        	ctx.font = '10px serif';
+        	ctx.font = '10px Roboto mono';
         	ctx.fillText(this.entity.name, topLeft.x, topLeft.y);
         
         	// health bar
@@ -41,38 +42,47 @@ export class BaseEntityInfo implements EntityInformationInterface {
        		ctx.strokeRect(
        			topLeft.x,
        			topLeft.y + PlayerInfoRender.HEALTH_BAR_Y_OFFSET,
-       			PlayerInfoRender.HEALTH_BAR_WIDTH,
+       			PlayerInfoRender.HEALTH_BAR_WIDTH * PlayerInfoRender.INFO_SIZE_SCALING,
        			PlayerInfoRender.HEALTH_BAR_HEIGHT);
 
        		ctx.fillStyle = getRGBString(PlayerInfoRender.HEALTH_BAR_COLOR);
        		ctx.fillRect(
        			topLeft.x + PlayerInfoRender.HEALTH_BAR_INNER_X_OFFSET,
        			topLeft.y + PlayerInfoRender.HEALTH_BAR_INNER_Y_OFFSET,
-       			this.entity.health,
-       			PlayerInfoRender.HEALTH_BAR_INNER_HEIGHT);
+       			this.entity.health * PlayerInfoRender.INFO_SIZE_SCALING,
+				PlayerInfoRender.HEALTH_BAR_INNER_HEIGHT);
 
         	// mana bar
         	ctx.strokeStyle = getRGBString(this.entity.getBaseColor());
         	ctx.strokeRect(
         		topLeft.x,
         		topLeft.y + PlayerInfoRender.MANA_BAR_Y_OFFSET,
-        		PlayerInfoRender.MANA_BAR_WIDTH,
+        		PlayerInfoRender.MANA_BAR_WIDTH * PlayerInfoRender.INFO_SIZE_SCALING,
         		PlayerInfoRender.MANA_BAR_HEIGHT);
        		
        		ctx.fillStyle = getRGBString(PlayerInfoRender.MANA_BAR_COLOR);
         	ctx.fillRect(
         		topLeft.x + PlayerInfoRender.MANA_BAR_INNER_X_OFFSET,
         		topLeft.y + PlayerInfoRender.MANA_BAR_INNER_Y_OFFSET,
-        		this.entity.mana,
+        		this.entity.mana * PlayerInfoRender.INFO_SIZE_SCALING,
         		PlayerInfoRender.MANA_BAR_INNER_HEIGHT);
         	
         	// fitness
         	ctx.fillStyle = getRGBString(this.entity.getBaseColor());
-        	ctx.font = '10px serif';
+        	ctx.font = '10px Roboto mono';
         	ctx.fillText(
-        		`${this.entity.getFitness()}`,
+        		`FITNESS: ${Math.trunc(this.entity.getFitness())}`,
         		topLeft.x + PlayerInfoRender.FITNESS_X_OFFSET,
-        		topLeft.y);
+				topLeft.y);
+				
+			// lives
+			ctx.fillStyle = getRGBString(this.entity.getBaseColor());
+			ctx.font = '10px Roboto mono';
+			ctx.fillText(
+				`LIVES: ${this.entity.numLives}`,
+				topLeft.x + PlayerInfoRender.LIVE_COUNT_X_OFFSET,
+				topLeft.y
+			);
         }
 	}
 }

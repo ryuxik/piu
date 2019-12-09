@@ -116,10 +116,8 @@ export class BaseEntityWeapon implements EntityWeaponInterface, RendererInterfac
     }
 
     public updatePosition() { //  used only for collision detection
-        
         if (!this.isColliding && this.opponent) {
             if(CollisionRectRect(this.rectangle, this.opponent.rectangle)) {
-                console.log("collided");
                 this.opponent.takePunch(this.direction);
                 this.isColliding = true;
             }
@@ -131,11 +129,8 @@ export class BaseEntityWeapon implements EntityWeaponInterface, RendererInterfac
     }
 
     public draw(canvas: HTMLCanvasElement) {
-        if (!this.isAttacking) {
-            return;
-        }
         let ctx = canvas.getContext('2d');
-        if (ctx) {
+        if (ctx && this.isAttacking) {
             ctx.fillStyle = getRGBString(this.getBaseColor());
             ctx.fillRect(
                 this.rectangle.topLeft.x,

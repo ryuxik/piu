@@ -8,12 +8,14 @@ import { BaseEntityManger } from './BaseImplementations/BaseEntityManager';
 type GameCanvasProps = {
 	entities: (EntityInterface & RendererInterface)[],
 	controllers: ControllerInterface[],
+	resetGameCallback: () => Promise<void>;
 }
 
 type GameCanvasState = {
 	entityManager: EntityManagerInterface;
 	isActive: boolean;
 	numTicksActive: number;
+	isGameOver: boolean;
 }
 
 class GameCanvas extends Component<GameCanvasProps, GameCanvasState> {
@@ -29,15 +31,14 @@ class GameCanvas extends Component<GameCanvasProps, GameCanvasState> {
 			entityManager,
 			isActive: false,
 			numTicksActive: 0,
-		}
+			isGameOver: false,
+		};
 		this.ticker = setInterval(() => this.tick(), GameLogic.MS_PER_TICK);
 	}
 
 	componentDidMount() {
 		document.addEventListener("keydown", this.keyPressed);
 		document.addEventListener("keyup", this.keyReleased);
-		this.draw();
-		this.startGame();
 	}
 
 	componentWillUnmount() {
@@ -46,34 +47,42 @@ class GameCanvas extends Component<GameCanvasProps, GameCanvasState> {
 		clearInterval(this.ticker);
 	}
 
-	public startGame(): void {
+	public resetGame = async (): Promise<void> => {
+		// TODO fix this bug
+		await this.props.resetGameCallback();
+		this.startGame();
+	}
+
+	public startGame = (): void  => {
 		this.setState((state: GameCanvasState) => {
+			this.draw();
 			return {
 				entityManager: state.entityManager,
 				isActive: true,
+				isGameOver: false,
+				numTicksActive: 0,
 			} as GameCanvasState;	
 		});
 	}
 
 	public tick(): void {
 		this.setState((state: GameCanvasState, props: GameCanvasProps) => {
-			if(state.isActive) {
+			if (state.isActive && !state.isGameOver) {
 				state.entityManager.updateEntityPositions();
 				this.draw();
-				props.entities.forEach((entity: (EntityInterface & RendererInterface)) => {
+				for (let i = 0; i < props.entities.length; i++) {
+					const entity = props.entities[i];
 					if (!entity.isAlive) {
 						return {
 							isActive: false,
-							entityManager: state.entityManager,
+							isGameOver: true,
 							numTicksActive: 0,
-						};
+						} as GameCanvasState;
 					}
-				});
+				}
 				return {
-					entityManager: state.entityManager,
-					isActive: state.isActive,
 					numTicksActive: state.numTicksActive + 1,
-				};
+				} as GameCanvasState;
 			} else {
 				return state;
 			}
@@ -119,15 +128,37 @@ class GameCanvas extends Component<GameCanvasProps, GameCanvasState> {
 				controller.keyReleased(keyCode);
 			});
 		}
-    }
-
-    render() {
-    	return (
-			<div className="canvas-container"> 
+	}
+	
+	private renderGamePrompt = (): JSX.Element => {
+		let gamePrompt;
+		let callback: () => void;
+		if ( this.state.isGameOver ) {
+			gamePrompt = 'GAME OVER: CLICK ME TO START A NEW GAME';
+			callback = () => this.resetGame();
+		} else {
+			gamePrompt = 'CLICK ME TO START THE GAME';
+			callback = () => this.startGame();
+		}
+		return (
+			<div className="game-prompt-container" onClick={callback}>
+				<div className="game-prompt">{gamePrompt}</div>
+			</div>
+		);
+	}
+	private renderCanvas = (): JSX.Element => {
+		return (
 			<canvas className="action-canvas"
 				ref={this.canvasRef}
 				width={GameRender.BACKGROUND_WIDTH}
 				height={GameRender.BACKGROUND_HEIGHT} />
+		);
+	}
+
+    render() {
+    	return (
+			<div className="canvas-container"> 
+				{this.state.isActive ? this.renderCanvas() : this.renderGamePrompt()}
 			</div>
     	);
     }

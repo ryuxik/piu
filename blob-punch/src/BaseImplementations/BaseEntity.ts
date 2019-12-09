@@ -72,7 +72,7 @@ export class BaseEntity implements EntityInterface, RendererInterface {
 
         this.weapon = this.initWeapon(this.directionFacing);
 
-        this.info = this.initInfo();
+        this.info = this.initInfo(this, this.entityNumber);
 	}
 
 	private getWeaponOrigin(directionFacing: Direction) {
@@ -95,8 +95,8 @@ export class BaseEntity implements EntityInterface, RendererInterface {
         return new BaseEntityWeapon(this.getWeaponOrigin(directionFacing));
 	}
 
-	private initInfo() {
-		return new BaseEntityInfo(this, this.entityNumber);
+	private initInfo(entity: BaseEntity, entityNumber: number) {
+		return new BaseEntityInfo(entity, entityNumber);
 	}
 
 	private initVelocity(): Vector2DInterface {
@@ -185,7 +185,7 @@ export class BaseEntity implements EntityInterface, RendererInterface {
 			newVelocity.vy = PlayerLogic.KNOCKBACK_VEL_Y
 			knockbackVxMagnitude = PlayerLogic.KNOCKBACK_VEL_X_BLOCK;
 		}
-		newVelocity.vx = Direction.LEFT ? -knockbackVxMagnitude : knockbackVxMagnitude;
+		newVelocity.vx = direction === Direction.LEFT ? -knockbackVxMagnitude : knockbackVxMagnitude;
 
 		this.velocity = newVelocity;
         this.knockbackTicks = PlayerLogic.KNOCKBACK_TICKS;
@@ -392,26 +392,13 @@ export class BaseEntity implements EntityInterface, RendererInterface {
 	public draw(canvas: HTMLCanvasElement) {
 		let ctx = canvas.getContext('2d');
 		if (ctx) {
-			if (this.isCharging) {
-				ctx.fillStyle = getRGBString(PlayerRender.CHARGING_COLOR);
-			} else if (this.isBlocking) {
-				ctx.fillStyle = getRGBString(PlayerRender.BLOCKING_COLOR);
-			} else {
-				ctx.fillStyle = getRGBString(this.getBaseColor());
-			}
-
-			ctx.fillRect(
-				this.rectangle.topLeft.x,
-				this.rectangle.topLeft.y,
-				PlayerLogic.PLAYER_WIDTH,
-				PlayerLogic.PLAYER_HEIGHT);
-			
 			let eyeCenter: Coordinate2DInterface = {
 				x: this.directionFacing === Direction.RIGHT ?
 					this.rectangle.bottomRight.x - PlayerRender.EYE_OFFSET_X :
 					this.rectangle.bottomLeft.x + PlayerRender.EYE_OFFSET_X,
 				y: this.rectangle.topLeft.y + PlayerRender.EYE_OFFSET_Y,
 			}; 
+
 			let eye = ctx.createRadialGradient(
 				eyeCenter.x,
 				eyeCenter.y,
@@ -421,8 +408,23 @@ export class BaseEntity implements EntityInterface, RendererInterface {
 				PlayerRender.EYE_RADIUS_OUTER);
 
 			eye.addColorStop(0, 'white');
-			eye.addColorStop(.1, getRGBString(PlayerRender.EYE_COLOR));
+			eye.addColorStop(0.6, getRGBString(PlayerRender.EYE_COLOR));
+			if (this.isCharging) {
+				eye.addColorStop(0.7, getRGBString(PlayerRender.CHARGING_COLOR));
+			} else if (this.isBlocking) {
+				eye.addColorStop(0.7, getRGBString(PlayerRender.BLOCKING_COLOR));
+			} else {
+				eye.addColorStop(0.7, getRGBString(this.getBaseColor()));
+			}
+			
+			ctx.fillStyle = eye;
 
+			ctx.fillRect(
+				this.rectangle.topLeft.x,
+				this.rectangle.topLeft.y,
+				PlayerLogic.PLAYER_WIDTH,
+				PlayerLogic.PLAYER_HEIGHT);
+			
 			this.weapon.draw(canvas);
 			this.info.draw(canvas);
 		}
