@@ -14,7 +14,7 @@ export class GameRunner {
     public entities: (EntityInterface & RendererInterface)[];
     public controllers: ControllerInterface[];
     public drawCallback?: (entityManager: EntityManagerInterface) => void;
-    public endCallback: () => void;
+    public stateChangeCallback: (gameState: GameState) => void;
     private ticker: NodeJS.Timeout;
     private numTicksActive: number;
     private gameState: GameState;
@@ -23,12 +23,9 @@ export class GameRunner {
     constructor(
         entities: (EntityInterface & RendererInterface)[],
         controllers: ControllerInterface[],
-        endCallback: () => void,
-        drawCallback?: (entityManager: EntityManagerInterface) => void) {
+        stateChangeCallback: (gameState: GameState) => void) {
         this.entities = entities;
         this.controllers = controllers;
-        this.drawCallback = drawCallback;
-        this.endCallback = endCallback;
         this.entityManager = new BaseEntityManger();
         entities.forEach((entity) => {
             this.entityManager.addEntity(entity);
@@ -36,12 +33,14 @@ export class GameRunner {
         this.gameState = GameState.STANDBY;
         this.numTicksActive = 0;
         this.ticker = setInterval(() => this.tick(), GameLogic.MS_PER_TICK);
+        this.stateChangeCallback = stateChangeCallback;
     }
 
     public onKeyPressed = (keyCode: number) => {
         if (this.gameState === GameState.RUNNING) {
             if (keyCode === 80) { // p
                 this.gameState = GameState.PAUSED;
+                this.stateChangeCallback(this.gameState);
             } else {
                 this.controllers.forEach((controller) => {
                     controller.keyPressed(keyCode);
@@ -55,28 +54,28 @@ export class GameRunner {
             this.controllers.forEach((controller) => {
                 controller.keyReleased(keyCode);
             });
-        } else if (this.gameState == GameState.PAUSED && keyCode === 80) { // p
+        } else if (this.gameState === GameState.PAUSED && keyCode === 80) { // p
             this.gameState = GameState.RUNNING;
+            this.stateChangeCallback(this.gameState);
         }
     }
 
-    public startGame = (): GameRunner => {
-        if (this.drawCallback) {
-            this.drawCallback(this.entityManager);
-        }
+    public startGame = (): void => {
         this.gameState = GameState.RUNNING;
-        return this;
+        this.stateChangeCallback(this.gameState);
     }
 
     public pauseGame = (): void => {
         if (this.gameState === GameState.RUNNING) {
             this.gameState = GameState.STANDBY;
+            this.stateChangeCallback(this.gameState);
         }
     }
 
     public resumeGame = (): void => {
         if (this.gameState === GameState.STANDBY) {
             this.gameState = GameState.RUNNING;
+            this.stateChangeCallback(this.gameState);
         }
     }
 
@@ -84,7 +83,7 @@ export class GameRunner {
         this.gameState = GameState.OVER;
         this.numTicksActive = 0;
         clearInterval(this.ticker);
-        this.endCallback();
+        this.stateChangeCallback(this.gameState);
     }
 
     public getNumTicksActive = (): number => {
@@ -109,5 +108,9 @@ export class GameRunner {
             }
             this.numTicksActive++;
         }
+    }
+
+    public registerDrawCallback = (callback : (entityManager: EntityManagerInterface) => void): void => {
+        this.drawCallback = callback;
     }
 }
