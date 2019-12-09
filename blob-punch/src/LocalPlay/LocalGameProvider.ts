@@ -64,6 +64,14 @@ export class LocalGameProvider {
         this.gameRunner.startGame();
     }
 
+    public pauseGame = (): void => {
+        this.gameRunner.pauseGame();
+    }
+
+    public resumeGame = (): void => {
+        this.gameRunner.resumeGame();
+    }
+
     public getGameState = (): GameState => {
         return this.gameRunner.getGameState();
     }

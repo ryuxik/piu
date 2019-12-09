@@ -39,8 +39,7 @@ export class GameRunner {
     public onKeyPressed = (keyCode: number) => {
         if (this.gameState === GameState.RUNNING) {
             if (keyCode === 80) { // p
-                this.gameState = GameState.PAUSED;
-                this.stateChangeCallback(this.gameState);
+                this.pauseGame();
             } else {
                 this.controllers.forEach((controller) => {
                     controller.keyPressed(keyCode);
@@ -54,9 +53,6 @@ export class GameRunner {
             this.controllers.forEach((controller) => {
                 controller.keyReleased(keyCode);
             });
-        } else if (this.gameState === GameState.PAUSED && keyCode === 80) { // p
-            this.gameState = GameState.RUNNING;
-            this.stateChangeCallback(this.gameState);
         }
     }
 
@@ -67,13 +63,13 @@ export class GameRunner {
 
     public pauseGame = (): void => {
         if (this.gameState === GameState.RUNNING) {
-            this.gameState = GameState.STANDBY;
+            this.gameState = GameState.PAUSED;
             this.stateChangeCallback(this.gameState);
         }
     }
 
     public resumeGame = (): void => {
-        if (this.gameState === GameState.STANDBY) {
+        if (this.gameState === GameState.PAUSED) {
             this.gameState = GameState.RUNNING;
             this.stateChangeCallback(this.gameState);
         }

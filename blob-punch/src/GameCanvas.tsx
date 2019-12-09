@@ -8,7 +8,6 @@ import { LocalGameProvider } from './LocalPlay/LocalGameProvider';
 type GameCanvasProps = {
 	gameProvider: LocalGameProvider,
 	gameState: GameState,
-
 }
 
 const GameCanvas: React.FC<GameCanvasProps> = (props: GameCanvasProps) => {
@@ -20,6 +19,14 @@ const GameCanvas: React.FC<GameCanvasProps> = (props: GameCanvasProps) => {
 
 	const resetGame = (): void => {
 		props.gameProvider.resetGame(drawCallback);
+	}
+
+	const pauseGame = (): void => {
+		props.gameProvider.pauseGame();
+	}
+
+	const resumeGame = (): void => {
+		props.gameProvider.resumeGame();
 	}
 
 	const drawCallback = (entityManager: EntityManagerInterface) => {
@@ -54,6 +61,9 @@ const GameCanvas: React.FC<GameCanvasProps> = (props: GameCanvasProps) => {
 		} else if (props.gameState === GameState.STANDBY) {
 			gamePrompt = 'CLICK ME TO START THE GAME';
 			callback = () => startGame();
+		} else if (props.gameState === GameState.PAUSED) {
+			gamePrompt = 'PAUSED. CLICK ME TO RESUME';
+			callback = () => resumeGame();
 		} else {
 			gamePrompt = 'OOPS YOU ENCOUNTERED A BUG';
 			callback = () => {return};
@@ -74,13 +84,17 @@ const GameCanvas: React.FC<GameCanvasProps> = (props: GameCanvasProps) => {
 		);
 	}
 
-	const isPausedOrRunning = (): boolean => {
-		return props.gameState === GameState.RUNNING || props.gameState === GameState.PAUSED;
+	const renderPause = () : JSX.Element => {
+		return (
+			<div className="pause-button"
+				onClick={() => pauseGame()}>&#9612;&#9612;</div>
+		);
 	}
 
 	return (
 		<div className="canvas-container"> 
-			{ isPausedOrRunning() ? renderCanvas() : renderGamePrompt() }
+			{ props.gameState === GameState.RUNNING ? renderCanvas() : renderGamePrompt() }
+			{ props.gameState === GameState.RUNNING ? renderPause() : null }
 		</div>
 	);
 }
