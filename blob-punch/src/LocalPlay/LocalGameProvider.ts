@@ -4,12 +4,13 @@ import { BaseEntity } from "../BaseImplementations/BaseEntity";
 import { BaseController } from "../BaseImplementations/BaseController";
 import { PlayerOneKeyBindings, PlayerTwoKeyBindings } from "./LocalKeyBindings";
 import { GameRunner, GameState } from "../GameRunner";
+import { ProviderInterface } from "../CommonInterfaces/Provider";
 
-export class LocalGameProvider {
+export class LocalGameProvider implements ProviderInterface{
     private entities: (EntityInterface & RendererInterface)[];
     private controllers: ControllerInterface[];
     private gameRunner: GameRunner;
-    private gameStateChangeCallback: (gameState: GameState) => void;
+    public gameStateChangeCallback: (gameState: GameState) => void;
     constructor(gameStateChangeCallback: (gameState: GameState) => void) {
         this.entities = this.initPlayers();
         this.controllers =

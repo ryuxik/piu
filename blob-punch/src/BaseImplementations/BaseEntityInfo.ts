@@ -34,7 +34,7 @@ export class BaseEntityInfo implements EntityInformationInterface {
 
 			// name
         	ctx.fillStyle = getRGBString(this.entity.getBaseColor());
-        	ctx.font = '10px Roboto mono';
+        	ctx.font = '12px Roboto mono';
         	ctx.fillText(this.entity.name, topLeft.x, topLeft.y);
         
         	// health bar
@@ -77,9 +77,9 @@ export class BaseEntityInfo implements EntityInformationInterface {
 				
 			// lives
 			ctx.fillStyle = getRGBString(this.entity.getBaseColor());
-			ctx.font = '10px Roboto mono';
+			ctx.font = '12px Roboto mono';
 			ctx.fillText(
-				`LIVES: ${this.entity.numLives}`,
+				`LIVES:${this.entity.numLives}`,
 				topLeft.x + PlayerInfoRender.LIVE_COUNT_X_OFFSET,
 				topLeft.y
 			);

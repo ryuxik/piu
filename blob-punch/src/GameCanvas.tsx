@@ -3,10 +3,10 @@ import { EntityManagerInterface } from './CommonInterfaces/Entity';
 import { GameLogic, GameRender } from './Constants';
 import { getRGBString } from './Utils/ColorUtil';
 import { GameState } from './GameRunner';
-import { LocalGameProvider } from './LocalPlay/LocalGameProvider';
+import { ProviderInterface } from './CommonInterfaces/Provider';
 
 type GameCanvasProps = {
-	gameProvider: LocalGameProvider,
+	gameProvider: ProviderInterface,
 	gameState: GameState,
 }
 
@@ -86,8 +86,8 @@ const GameCanvas: React.FC<GameCanvasProps> = (props: GameCanvasProps) => {
 
 	const renderPause = () : JSX.Element => {
 		return (
-			<div className="pause-button"
-				onClick={() => pauseGame()}>&#9612;&#9612;</div>
+			<i className="pause-button material-icons"
+				onClick={() => pauseGame()}>pause</i>
 		);
 	}
 

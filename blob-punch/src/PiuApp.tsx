@@ -5,13 +5,14 @@ import GameCanvas from './GameCanvas';
 import Navbar from './Navbar';
 import { LocalGameProvider } from './LocalPlay/LocalGameProvider';
 import { GameState } from './GameRunner';
+import { ProviderInterface } from './CommonInterfaces/Provider';
 
 type PiuAppProps = {
 
 }
 
 type PiuAppState = {
-  gameProvider: LocalGameProvider,
+  gameProvider: ProviderInterface,
   gameState: GameState
 }
 class PiuApp extends Component<PiuAppProps, PiuAppState> {
