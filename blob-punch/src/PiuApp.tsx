@@ -13,7 +13,7 @@ type PiuAppProps = {
 
 type PiuAppState = {
   gameProvider: ProviderInterface,
-  gameState: GameState
+  gameState: GameState,
 }
 class PiuApp extends Component<PiuAppProps, PiuAppState> {
   constructor(props: PiuAppProps) {

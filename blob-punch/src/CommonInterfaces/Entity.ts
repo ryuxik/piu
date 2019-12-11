@@ -58,6 +58,7 @@ export interface EntityInterface  extends SolidInterface, ManagedInterface {
 }
 
 export interface EntityManagerInterface {
+	entities: Set<(EntityInterface | ProjectileInterface) & RendererInterface>;
 	removeEntity(entity: EntityInterface | ProjectileInterface): void;
 	addEntity(entity: EntityInterface | ProjectileInterface): void;
 	updateEntityPositions(): void;

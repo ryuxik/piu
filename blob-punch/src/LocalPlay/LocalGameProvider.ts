@@ -6,7 +6,7 @@ import { PlayerOneKeyBindings, PlayerTwoKeyBindings } from "./LocalKeyBindings";
 import { GameRunner, GameState } from "../GameRunner";
 import { ProviderInterface } from "../CommonInterfaces/Provider";
 
-export class LocalGameProvider implements ProviderInterface{
+export class LocalGameProvider implements ProviderInterface {
     private entities: (EntityInterface & RendererInterface)[];
     private controllers: ControllerInterface[];
     private gameRunner: GameRunner;
