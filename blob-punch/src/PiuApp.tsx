@@ -15,6 +15,7 @@ type PiuAppState = {
   gameProvider: ProviderInterface,
   gameState: GameState,
 }
+
 class PiuApp extends Component<PiuAppProps, PiuAppState> {
   constructor(props: PiuAppProps) {
     super(props);

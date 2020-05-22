@@ -14,9 +14,9 @@ export const initialState : RootState = {
     numTicksActive: 0, 
 } 
 
-export const piuApp = (state = initialState, action) => {
-    return state;
-}
+// export const piuApp = (state = initialState, action) => {
+//     return state;
+// }
 
 
 export interface RootState {
