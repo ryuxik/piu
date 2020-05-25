@@ -1,7 +1,7 @@
-import { RectangleInterface, Vector2DInterface } from './CommonInterfaces/Physics';
-import { Direction } from './CommonEnums';
-import { KeyBindings } from './CommonInterfaces/Controller';
-import { GameState } from './GameRunner';
+import { RectangleInterface, Vector2DInterface } from '../CommonInterfaces/Physics';
+import { Direction } from '../CommonEnums';
+import { KeyBindings } from '../CommonInterfaces/Controller';
+import { GameState } from '../GameRunner';
 
 export const initialState : RootState = {
     gameState: GameState.STANDBY,
@@ -14,17 +14,12 @@ export const initialState : RootState = {
     numTicksActive: 0, 
 } 
 
-// export const piuApp = (state = initialState, action) => {
-//     return state;
-// }
-
-
 export interface RootState {
     gameState: GameState;
     numTicksActive: number;
     entitiesById: Map<number, EntityState>;
     entities: Array<number>;
-    projectilesById: Map<number, ProjectileState>;
+    projectilesById: Map<number, Map<number, ProjectileState>>;
     projectiles: Array<number>;
     controllersById: Map<number, ControllerState>;
     controllers: Array<number>;
@@ -41,8 +36,7 @@ export interface SolidState {
 }
 
 export interface EntityInformationState {
-    entity: number;
-    entityNumber: number;
+    id: number;
     canvas: HTMLElement;
 }
 
@@ -52,22 +46,18 @@ export interface EntityState extends SolidState {
     name: string;
     health: number;
     mana: number;
-    entityNumber: number;
-    isOnstage: boolean;
     directionMoving: Direction;
     directionFacing: Direction;
     numLives: number;
     chargeCounter: number;
     isCharging: boolean;
     isBlocking: boolean;
+    isAlive: boolean;
+    isOnstage: boolean;
     knockbackTicks: number;
     numTicksAlive: number;
-	isAlive: boolean;
 	numTicksInactive: number;
-	weapon: number;
-	info: number;
-    opponent: number;
-    canvas: HTMLCanvasElement;
+    id: number;
 }
 
 export interface EntityManagerState {
@@ -76,21 +66,20 @@ export interface EntityManagerState {
     canvas: HTMLCanvasElement;
 }
 
-export interface EntityWeaponState extends SolidState {
+export interface WeaponState extends SolidState {
     isAttacking: boolean;
     isColliding: boolean;
     attackingTick: number;
     direction: Direction;
-    opponent: number;
-    entity: number;
-    canvas: HTMLCanvasElement;
+    id: number;
 }
 
 export interface ProjectileState extends SolidState {
-    velocityVector: Vector2DInterface;
-	opponent: number;
+    velocity: Vector2DInterface;
     connectionMade: boolean;
-    canvas: HTMLCanvasElement;
+    garbageCollect: boolean;
+    id: number;
+    entityId: number;
 }
 
 
